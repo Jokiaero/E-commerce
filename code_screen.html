@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RasaLokal - Splash Screen</title>
+<!-- Load Tailwind CSS v3 with forms & container queries plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<style data-purpose="typography">
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
+<style data-purpose="custom-shadows">
+    .logo-container-shadow {
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.15);
+    }
+    .cta-btn-shadow {
+      box-shadow: 0 12px 24px -4px rgba(255, 90, 0, 0.45);
+    }
+  </style>
+</head>
+<body class="bg-[#121212] min-h-screen flex items-center justify-center p-0 md:p-6 antialiased selection:bg-[#FF5A00] selection:text-white">
+<!-- BEGIN: PhoneContainer -->
+<!-- iPhone mobile viewport mockup: 390px x 844px -->
+<main class="relative w-[390px] h-[844px] bg-[#1a130f] rounded-[48px] overflow-hidden shadow-2xl flex flex-col justify-between border-[6px] border-[#2c2b29] select-none" data-purpose="mobile-viewport">
+<!-- BEGIN: BackgroundImageLayer -->
+<!-- Full-bleed culinary photography background with dark warm gradient overlays -->
+<div class="absolute inset-0 z-0 overflow-hidden" data-purpose="background-media">
+<img alt="Authentic Indonesian Palembang Pempek dish" class="w-full h-full object-cover object-center transform scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOGeEbZhh0-K2cYoWeWjtB2v9UZ7oELRPJORAICApCna4x5HJCW2LFDPRcw5wrOgd-7SpVN8y-a_Cj0Fkvw9xEtVuYEuGMD7MtanZ-dNTqspK12EVWFTkWgYRNPdvGkzWcjST5DwrxU_PVetu1DfaZ5zj6QnJkq-UpEqhibfT-UTQ4r_nWFMUK1DWx-TUCdeKPRKmgBc4vos3x-i2qBLkjga_hsE1CifUWzBMdsp7XG1zOGorE6Q_j1g"/>
+<!-- Primary darkening vignette and gradient overlays for optimal legibility -->
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/60"></div>
+<div class="absolute inset-0 bg-radial from-transparent via-black/30 to-black/75"></div>
+</div>
+<!-- END: BackgroundImageLayer -->
+<!-- BEGIN: TopBarSection -->
+<header class="relative z-10 w-full pt-3 px-7 flex flex-col" data-purpose="status-bar-container">
+<!-- Dynamic Island / Speaker Notch Indicator -->
+<div class="mx-auto w-[122px] h-[34px] bg-black/85 backdrop-blur-md rounded-full mb-1"></div>
+<!-- iOS Status Bar Elements -->
+<div class="flex items-center justify-between text-white text-[15px] font-semibold tracking-tight pt-1">
+<!-- Time -->
+<span class="pl-2 drop-shadow-sm font-semibold text-white/95">9:41</span>
+<!-- System Icons (Cellular, Wifi, Battery) -->
+<div class="flex items-center gap-2 pr-1.5 drop-shadow-sm">
+<!-- Cellular Icon -->
+<svg class="w-4 h-4 fill-current text-white" viewbox="0 0 24 24">
+<path class="opacity-0" d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.64 10.57 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path>
+<rect height="5" rx="1" width="3" x="2" y="16"></rect>
+<rect height="9" rx="1" width="3" x="7" y="12"></rect>
+<rect height="13" rx="1" width="3" x="12" y="8"></rect>
+<rect height="17" rx="1" width="3" x="17" y="4"></rect>
+</svg>
+<!-- Wifi Icon -->
+<svg class="w-4 h-4 fill-current text-white" viewbox="0 0 24 24">
+<path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4zm0 3.5c3.62 0 6.94 1.34 9.48 3.56L12 18.25 2.52 11.06C5.06 8.84 8.38 7.5 12 7.5z"></path>
+</svg>
+<!-- Battery Icon -->
+<div class="flex items-center">
+<div class="w-6 h-[11.5px] border-2 border-white/80 rounded-[4px] p-[1.5px] flex items-center">
+<div class="w-full h-full bg-white rounded-[1.5px]"></div>
+</div>
+<div class="w-[1.5px] h-1 bg-white/80 rounded-r-sm ml-[1px]"></div>
+</div>
+</div>
+</div>
+</header>
+<!-- END: TopBarSection -->
+<!-- BEGIN: BrandLogoAndIdentity -->
+<section class="relative z-10 flex flex-col items-center justify-center px-6 -mt-8" data-purpose="brand-presentation">
+<!-- Logo Container -->
+<div class="w-24 h-24 mb-5 rounded-full bg-white/95 backdrop-blur-md flex items-center justify-center logo-container-shadow transition-transform active:scale-95 duration-200">
+<img alt="RasaLokal Chef Hat Logo" class="w-16 h-16 object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UCBuc4pHawrjTnhNCWXXgWriYpHCVYvBIel0AO1_rUxx--fa-NZvLvQB_olNlA2SttTsyMhbMjt4uoaGiY-ljxnWXudo_7KE-RLqlW5ZGKfAXhkOf-vL12s1qS0aKPX76xY6CgusJq8v8K6JtAsTD-LksboiTlXekEv3PsL1W3lR3IH8uVgFojSKnG60vkat7P43StqkCvg4_MhY7BiRpu7Gi-RcwpaUEYPeyPgBgbXR51XhmpSuvhMJ6v"/>
+</div>
+<!-- App Title -->
+<h1 class="text-4xl font-extrabold tracking-tight text-center leading-tight drop-shadow-lg flex items-center">
+<span class="text-[#FF5A00]">Rasa</span><span class="text-white">Lokal</span>
+</h1>
+<!-- Tagline -->
+<p class="mt-2.5 text-white/90 text-[15px] font-medium tracking-wide text-center drop-shadow-md">
+        Kuliner Lokal, UMKM Naik Kelas
+      </p>
+</section>
+<!-- END: BrandLogoAndIdentity -->
+<!-- BEGIN: BottomNavigationCTA -->
+<footer class="relative z-10 w-full px-7 pb-4 flex flex-col items-center" data-purpose="call-to-action-container">
+<!-- Primary Action Button -->
+<button class="w-full py-4 px-6 bg-[#FF5A00] hover:bg-[#e04f00] active:scale-[0.98] text-white font-bold text-base rounded-[16px] cta-btn-shadow transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-4 focus:ring-[#FF5A00]/40" data-purpose="get-started-button" type="button">
+<span>Mulai Sekarang</span>
+</button>
+<!-- iOS Home Indicator Bar -->
+<div class="w-[136px] h-1.5 bg-white/70 rounded-full mt-7 mb-1" data-purpose="ios-home-indicator"></div>
+</footer>
+<!-- END: BottomNavigationCTA -->
+</main>
+<!-- END: PhoneContainer -->
+</body></html>

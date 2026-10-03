@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RasaLokal - Detail Pesanan &amp; Tracking</title>
+<!-- Tailwind CSS CDN with forms and container-queries plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              orange: '#f97316',
+              darkorange: '#ea580c',
+              green: '#22c55e',
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-scroll-and-map">
+    /* Map simulation road styling */
+    .road-grid {
+      background-color: #f1f5f9;
+      background-image: 
+        linear-gradient(#e2e8f0 1.5px, transparent 1.5px),
+        linear-gradient(90deg, #e2e8f0 1.5px, transparent 1.5px);
+      background-size: 40px 40px;
+    }
+  </style>
+</head>
+<body class="bg-stone-100 flex justify-center items-center min-h-screen p-0 sm:p-4 text-slate-800 antialiased font-sans">
+<!-- BEGIN: PhoneShellContainer -->
+<!-- Target device iPhone 390x844 dimensions -->
+<main class="w-[390px] h-[844px] bg-slate-50 flex flex-col relative rounded-[44px] shadow-2xl overflow-hidden border-[6px] border-slate-900 border-opacity-95">
+<!-- BEGIN: iOSStatusBar -->
+<header class="w-full pt-3 px-7 flex justify-between items-center z-30 shrink-0 text-slate-900">
+<span class="text-[14px] font-semibold tracking-tight">9:47</span>
+<div class="flex items-center space-x-1.5 text-xs">
+<!-- Signal strength indicator -->
+<svg class="w-4 h-3.5" fill="currentColor" viewbox="0 0 17 12">
+<path d="M1 9.5h2v2H1v-2zm3.5-3h2v5h-2v-5zm3.5-3h2v8h-2v-8zm3.5-3h2v11h-2v-11z"></path>
+</svg>
+<!-- Wifi indicator -->
+<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4zm0 3.5c3.8 0 7.24 1.54 9.74 4.04L12 19.34 2.26 11.54C4.76 9.04 8.2 7.5 12 7.5z"></path>
+</svg>
+<!-- Battery indicator -->
+<div class="w-5 h-2.5 border border-slate-900 rounded-[3px] p-0.5 flex items-center">
+<div class="bg-slate-900 h-full w-[80%] rounded-[1px]"></div>
+</div>
+</div>
+</header>
+<!-- END: iOSStatusBar -->
+<!-- BEGIN: TopAppBar -->
+<div class="px-4 py-2.5 flex items-center relative z-20 shrink-0">
+<!-- Back button -->
+<button aria-label="Kembali" class="w-8 h-8 flex items-center justify-center -ml-1 text-slate-800 hover:text-orange-600 transition" type="button">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<h1 class="text-base font-bold text-slate-900 mx-auto pr-7 tracking-tight">Detail Pesanan</h1>
+</div>
+<!-- END: TopAppBar -->
+<!-- BEGIN: ScrollableContent -->
+<div class="flex-1 overflow-y-auto px-4 pb-8 space-y-3.5" data-purpose="scrollable-order-content">
+<!-- BEGIN: StatusBanner -->
+<section class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 flex items-center gap-3">
+<!-- Circular green check badge -->
+<div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600">
+<svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<h2 class="text-sm font-bold text-slate-900 leading-tight">Pesanan Diproses</h2>
+<p class="text-[11px] text-slate-500 mt-0.5 font-normal">Penjual sedang menyiapkan pesanan Anda.</p>
+</div>
+</section>
+<!-- END: StatusBanner -->
+<!-- BEGIN: StepProgressTracker -->
+<section class="bg-white rounded-2xl py-4 px-3 shadow-sm border border-slate-100" data-purpose="step-tracker">
+<div class="flex items-center justify-between relative px-2">
+<!-- Step 1: Dipesan -->
+<div class="flex flex-col items-center z-10 w-16">
+<span class="text-[11px] font-semibold text-slate-800">Dipesan</span>
+<span class="text-[9.5px] text-slate-400 font-medium my-0.5">12:30</span>
+<div class="w-2.5 h-2.5 rounded-full bg-orange-500 mt-0.5 ring-4 ring-orange-100"></div>
+</div>
+<!-- Connecting line 1 (active) -->
+<div class="h-[2px] bg-orange-500 flex-1 -mt-[-19px] -mx-2 z-0"></div>
+<!-- Step 2: Diproses -->
+<div class="flex flex-col items-center z-10 w-16">
+<span class="text-[11px] font-bold text-orange-600">Diproses</span>
+<span class="text-[9.5px] text-orange-500 font-medium my-0.5">12:35</span>
+<div class="w-2.5 h-2.5 rounded-full bg-orange-500 mt-0.5 ring-4 ring-orange-100"></div>
+</div>
+<!-- Connecting line 2 (inactive) -->
+<div class="h-[2px] bg-slate-200 flex-1 -mt-[-19px] -mx-2 z-0"></div>
+<!-- Step 3: Dikirim -->
+<div class="flex flex-col items-center z-10 w-16">
+<span class="text-[11px] font-medium text-slate-500">Dikirim</span>
+<span class="text-[9.5px] text-transparent my-0.5 select-none">-</span>
+<div class="w-2 h-2 rounded-full bg-slate-300 mt-1"></div>
+</div>
+<!-- Connecting line 3 (inactive) -->
+<div class="h-[2px] bg-slate-200 flex-1 -mt-[-19px] -mx-2 z-0"></div>
+<!-- Step 4: Selesai -->
+<div class="flex flex-col items-center z-10 w-16">
+<span class="text-[11px] font-medium text-slate-500">Selesai</span>
+<span class="text-[9.5px] text-transparent my-0.5 select-none">-</span>
+<div class="w-2 h-2 rounded-full bg-slate-300 mt-1"></div>
+</div>
+</div>
+</section>
+<!-- END: StepProgressTracker -->
+<!-- BEGIN: DeliveryTrackingMapBox -->
+<section class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100" data-purpose="tracking-map">
+<!-- Stylized Map Container -->
+<div class="relative h-44 w-full road-grid overflow-hidden flex items-center justify-center">
+<!-- Abstract Roads / Paths -->
+<svg class="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+<!-- Secondary Road networks -->
+<path d="M-10,35 Q90,60 180,30 T370,55" fill="none" stroke="#e2e8f0" stroke-width="7"></path>
+<path d="M40,180 L40,-10" fill="none" stroke="#e2e8f0" stroke-width="5"></path>
+<path d="M320,180 L320,-10" fill="none" stroke="#e2e8f0" stroke-width="5"></path>
+<path d="M-10,130 Q120,110 240,140 T400,120" fill="none" stroke="#e2e8f0" stroke-width="7"></path>
+<!-- Active Delivery Route (Orange Dotted Path) -->
+<path d="M 65 95 C 110 95, 125 125, 185 110 C 235 95, 255 75, 295 75" fill="none" stroke="#ea580c" stroke-dasharray="4,4" stroke-width="2.5"></path>
+</svg>
+<!-- Starting Pickup Point: Green Location Pin -->
+<div class="absolute left-14 top-[82px] flex flex-col items-center -translate-x-1/2 -translate-y-full">
+<div class="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+<div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+</div>
+<div class="w-1.5 h-1.5 bg-emerald-600 rotate-45 -mt-1 rounded-xs"></div>
+</div>
+<!-- Active Delivery Courier / Scooter on Route -->
+<div class="absolute left-1/2 top-[102px] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+<!-- Pulse ripple effect -->
+<div class="absolute w-12 h-12 bg-orange-400 opacity-20 rounded-full animate-ping"></div>
+<div class="relative w-10 h-10 bg-white rounded-full shadow-lg border border-orange-200 flex items-center justify-center">
+<!-- Scooter / Delivery Icon -->
+<svg class="w-6 h-6 text-orange-500" fill="currentColor" viewbox="0 0 24 24">
+<path d="M19 7c0-1.1-.9-2-2-2h-3v2h3v2.65L13.52 14H10V9H6c-2.21 0-4 1.79-4 4v3h2c0 1.66 1.34 3 3 3s3-1.34 3-3h4.18c.41 1.16 1.51 2 2.82 2 1.66 0 3-1.34 3-3h2v-5l-4-3zm-12 10c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm11 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"></path>
+</svg>
+</div>
+</div>
+<!-- Destination Point: Customer Flag/House -->
+<div class="absolute right-12 top-[68px] flex flex-col items-center -translate-y-1/2">
+<div class="w-4 h-4 bg-orange-500 rounded-full border-2 border-white shadow"></div>
+</div>
+</div>
+<!-- Driver Card -->
+<div class="p-3 bg-white flex items-center justify-between border-t border-slate-100">
+<div class="flex items-center gap-2.5">
+<!-- Driver Avatar -->
+<div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0 border border-slate-200">
+<img alt="Foto driver Rudi" class="w-full h-full object-cover object-top" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8JL3rXENrZ0fkKJJ7GfnC5JwFrZ7Seag6fy67XI6XfiAndkIoeAAragtvelTbrE5v5uAsfFkjxfAZwdv6ydZm6mKOZpunBQRlyXZkgOhfKCjjafNUS2Zby6BUzi0PG_5KgICeJTNfgF6i3-jEvlkZ2GFZHhpmAxZDxnepBWreT5ZtYhJVin_VNght7BRww8kbAuVcjrNZ7iqW8VavM-R_vwaa9RXYU-5U9rymR-hNktAuKx8ds_sytg"/>
+</div>
+<!-- Driver Info -->
+<div class="leading-tight">
+<h3 class="text-xs font-bold text-slate-900">Rudi</h3>
+<p class="text-[10px] text-slate-500">Kurir sedang dalam perjalanan</p>
+<p class="text-[10px] font-medium text-slate-400 mt-0.5">+62 812 3456 7890</p>
+</div>
+</div>
+<!-- Quick Call Button -->
+<a aria-label="Telepon kurir" class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm hover:bg-emerald-600 transition shrink-0" href="tel:+6281234567890">
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24">
+<path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.28-.28.37-.68.25-1.02A11.36 11.36 0 018.96 4c0-.55-.45-1-1-1H4.5c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM5.03 5h2.09c.12.87.32 1.7.6 2.49L6.5 8.71C5.87 7.55 5.37 6.31 5.03 5zm13.97 13.97c-1.31-.34-2.55-.84-3.71-1.47l1.22-1.22c.79.28 1.62.48 2.49.6v2.09z"></path>
+</svg>
+</a>
+</div>
+</section>
+<!-- END: DeliveryTrackingMapBox -->
+<!-- BEGIN: OrderDetailsSection -->
+<section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100" data-purpose="ordered-items-summary">
+<h2 class="text-xs font-bold text-slate-900 mb-3 tracking-tight">Detail Pesanan</h2>
+<ul class="space-y-3">
+<!-- Item 1: Pempek Kapal Selam -->
+<li class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg bg-orange-50 overflow-hidden shrink-0 border border-slate-100 flex items-center justify-center">
+<img alt="Pempek Kapal Selam" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc5pIR00ymPsWB7mFiKscLcbjHxuE8qsEUb-tCRdz1Wozl6sU56NMLRVsC9iK0ISsh0tO-d9MS-CoPj5Qj7SKQdwbWi8dcFgX-gb0Jr5ZgJpJhbRUhZQkSSVI6BfOFvaUq3JkHNoiFuTMvV1d6dIalsJ5Z8KbQM1Cr_2H6Aj6E_j3fngayYCHDaQUGoDgwqtXuU8WmrLme2Hn-TiU_w_afWmyTaMoPQSQSnMFohc74-sGQGWMFkHz69Q"/>
+</div>
+<div>
+<span class="font-medium text-slate-800 block text-[11.5px]">Pempek Kapal Selam</span>
+<span class="text-[10px] text-slate-400">x1</span>
+</div>
+</div>
+<span class="font-semibold text-slate-800 text-[11.5px]">Rp 25.000</span>
+</li>
+<!-- Item 2: Tekwan -->
+<li class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-slate-100">
+<img alt="Tekwan Palembang" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhdmnoL7cnp7ya4uBBgtrCM_4-7QoWejtscyP9JjuFOt7M3YdJgtxY7Txh4zqpTjhWe_3gxHfblZRzsSAIp6iY4a750cvApoWP39gc4bFJcjSi6oeK0TM4TT0ckhwYuiYIlyI4Pz_3Fobqef0hypm6RzbTbVLdvQLN81Heux2a-xRNdETYowCSoAVhShS0mc2il4AP29NdnSxXMQHvWY85saihXnZVbej4DAXp6G4IyJ3dlBTj-0dKLQ"/>
+</div>
+<div>
+<span class="font-medium text-slate-800 block text-[11.5px]">Tekwan</span>
+<span class="text-[10px] text-slate-400">x1</span>
+</div>
+</div>
+<span class="font-semibold text-slate-800 text-[11.5px]">Rp 20.000</span>
+</li>
+<!-- Item 3: Kerupuk Ikan -->
+<li class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-slate-100">
+<img alt="Kerupuk Ikan Kemplang" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUlWa6D3TcE1nd5TJeUYT38XxthmK5AeGB2iYS9j7Y3YrtIQm_z3SZiW8UT1dp11x61iKOWPtrtGKEaclfpyxW-AShms4QxSIF1ydWhQVCF2QPhyAxJK5j3rIFhjEpDOQNug-h7yDXsJbCx9GmYYNe5_x833T60cCs5SWOaRJN3T9OAAFtURCk2V-4BnhMcMdxyRXTphXnx9a8IQ4QFMR0p5R_eMTkei7kn5hetl3Mhk-wWlKM3YQafA"/>
+</div>
+<div>
+<span class="font-medium text-slate-800 block text-[11.5px]">Kerupuk Ikan</span>
+<span class="text-[10px] text-slate-400">x1</span>
+</div>
+</div>
+<span class="font-semibold text-slate-800 text-[11.5px]">Rp 15.000</span>
+</li>
+<!-- Item 4: Es Kacang Merah -->
+<li class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg bg-red-50 overflow-hidden shrink-0 border border-slate-100 flex items-center justify-center">
+<img alt="Es Kacang Merah" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaxu0d_TPUTxkNHIMFfk42BuR5vPed4k5KaudBDa7bnKq-8qP3ze_SE2whc0Iz2TEXVgB43xz342XxvjIWHd6e8v7OYk3B4zqlbWUEvLorgmZL5QDC_wN8Dm8ROWiSc0rWqyGuTL7txWEGStlVJddAYL4XwLph4iNTnSM8SXjr6O3OZi19kErL658HeJl-tIxayMl2Iy364IRs2qv8cJiDlueCjROeUDkIB2SVyJGTFLhnqJcLrrDoaA"/>
+</div>
+<div>
+<span class="font-medium text-slate-800 block text-[11.5px]">Es Kacang Merah</span>
+<span class="text-[10px] text-slate-400">x1</span>
+</div>
+</div>
+<span class="font-semibold text-slate-800 text-[11.5px]">Rp 12.000</span>
+</li>
+</ul>
+</section>
+<!-- END: OrderDetailsSection -->
+</div>
+<!-- END: ScrollableContent -->
+<!-- BEGIN: iOSHomeIndicator -->
+<footer class="w-full pb-2 pt-1 flex justify-center bg-white/70 backdrop-blur-sm shrink-0">
+<div class="w-32 h-1 bg-slate-900 rounded-full opacity-30"></div>
+</footer>
+<!-- END: iOSHomeIndicator -->
+</main>
+<!-- END: PhoneShellContainer -->
+</body></html>

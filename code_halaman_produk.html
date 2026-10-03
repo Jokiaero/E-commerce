@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RasaLokal - Detail Produk</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              orange: '#FF5A00',
+              orangeLight: '#FFF2EA',
+              orangeBorder: '#FF7A29'
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="base-styling">
+    body {
+      background-color: #e5e7eb;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Hide scrollbars for clean presentation */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body>
+<!-- BEGIN: PhoneFrame -->
+<main class="relative w-[390px] h-[844px] bg-white rounded-[48px] shadow-2xl overflow-hidden flex flex-col border-[6px] border-neutral-800" data-purpose="mobile-viewport">
+<!-- BEGIN: DynamicIslandAndStatusBar -->
+<div class="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-7 pt-3.5 pb-1 text-white text-xs font-semibold select-none pointer-events-none" data-purpose="ios-status-bar">
+<!-- Time -->
+<span>9:41</span>
+<!-- Dynamic Island pill cutout -->
+<div class="w-28 h-6 bg-black rounded-full absolute left-1/2 -translate-x-1/2 top-2.5"></div>
+<!-- Right Status Icons -->
+<div class="flex items-center space-x-1.5 text-xs">
+<!-- Signal Bars -->
+<svg class="w-4 h-3 fill-current" viewbox="0 0 17 12">
+<rect height="3" rx="0.5" width="2.5" x="0" y="9"></rect>
+<rect height="6" rx="0.5" width="2.5" x="4" y="6"></rect>
+<rect height="9" rx="0.5" width="2.5" x="8" y="3"></rect>
+<rect height="12" rx="0.5" width="2.5" x="12" y="0"></rect>
+</svg>
+<!-- Wifi -->
+<svg class="w-3.5 h-3 fill-current" viewbox="0 0 16 12">
+<path d="M8 2.5C10.5 2.5 12.8 3.5 14.5 5.1L15.9 3.7C13.8 1.7 11 0.5 8 0.5C5 0.5 2.2 1.7 0.1 3.7L1.5 5.1C3.2 3.5 5.5 2.5 8 2.5ZM8 6.5C9.7 6.5 11.2 7.2 12.3 8.3L13.7 6.9C12.2 5.4 10.2 4.5 8 4.5C5.8 4.5 3.8 5.4 2.3 6.9L3.7 8.3C4.8 7.2 6.3 6.5 8 6.5ZM8 10C8.8 10 9.5 10.7 9.5 11.5C9.5 12.3 8.8 13 8 13C7.2 13 6.5 12.3 6.5 11.5C6.5 10.7 7.2 10 8 10Z"></path>
+</svg>
+<!-- Battery -->
+<div class="w-5 h-2.5 border border-white rounded-[3px] p-[1px] flex items-center">
+<div class="h-full w-3.5 bg-white rounded-sm"></div>
+</div>
+</div>
+</div>
+<!-- END: DynamicIslandAndStatusBar -->
+<!-- BEGIN: ScrollableContent -->
+<div class="flex-1 overflow-y-auto no-scrollbar pb-24" data-purpose="scrollable-body">
+<!-- BEGIN: HeroProductImageSection -->
+<section class="relative w-full h-[354px]" data-purpose="product-hero-image">
+<!-- Floating Back Button -->
+<button aria-label="Kembali" class="absolute top-12 left-5 z-20 w-10 h-10 rounded-full bg-white/95 shadow-md flex items-center justify-center text-neutral-800 hover:bg-white active:scale-95 transition-all" type="button">
+<svg class="w-5 h-5 stroke-current fill-none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
+<polyline points="15 18 9 12 15 6"></polyline>
+</svg>
+</button>
+<!-- Product Image -->
+<img alt="Authentic Indonesian Palembang Pempek dish, golden fried pempek submarine kapal selam sliced with egg filling, cuko dark sweet savory sauce in small ceramic bowl, cucumber slices, rich warm food photography, dark ambient culinary background, mobile splash screen wallpaper" class="w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOGeEbZhh0-K2cYoWeWjtB2v9UZ7oELRPJORAICApCna4x5HJCW2LFDPRcw5wrOgd-7SpVN8y-a_Cj0Fkvw9xEtVuYEuGMD7MtanZ-dNTqspK12EVWFTkWgYRNPdvGkzWcjST5DwrxU_PVetu1DfaZ5zj6QnJkq-UpEqhibfT-UTQ4r_nWFMUK1DWx-TUCdeKPRKmgBc4vos3x-i2qBLkjga_hsE1CifUWzBMdsp7XG1zOGorE6Q_j1g"/>
+<!-- Subtle Top Gradient Shadow for Status Bar Clarity -->
+<div class="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/50 to-transparent pointer-events-none"></div>
+<!-- Rounded Bottom Sheet Overlap Cap -->
+<div class="absolute bottom-0 inset-x-0 h-6 bg-white rounded-t-[28px]"></div>
+</section>
+<!-- END: HeroProductImageSection -->
+<!-- BEGIN: ProductInformation -->
+<section class="px-5 pt-1 pb-6" data-purpose="product-details">
+<!-- Product Title -->
+<h1 class="text-[23px] font-bold text-neutral-900 tracking-tight leading-tight">
+          Pempek Kapal Selam
+        </h1>
+<!-- Rating & Review Count -->
+<div class="flex items-center space-x-1.5 mt-2">
+<!-- Star Icon -->
+<svg class="w-4 h-4 text-amber-500 fill-amber-500" viewbox="0 0 20 20">
+<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+</svg>
+<span class="text-sm font-bold text-neutral-900">4.8</span>
+<span class="text-sm text-neutral-400 font-normal">(120 ulasan)</span>
+</div>
+<!-- Price -->
+<div class="mt-3.5">
+<p class="text-[26px] font-extrabold text-[#FF5A00] tracking-tight leading-none">
+            Rp 25.000
+          </p>
+</div>
+<!-- Product Description -->
+<div class="mt-3 border-b border-neutral-100 pb-5">
+<p class="text-[13.5px] leading-relaxed text-neutral-500 font-normal">
+            Pempek kapal selam asli Palembang dengan isian telur, disajikan dengan cuko khas.
+          </p>
+</div>
+<!-- BEGIN: VariantSelector -->
+<div class="mt-5" data-purpose="variant-selection">
+<h2 class="text-[15px] font-bold text-neutral-900 mb-3">Varian</h2>
+<div class="flex items-center gap-2.5">
+<!-- Active Option: Original -->
+<button class="px-4 py-2 bg-[#FFF3EC] border border-[#FF7A29] rounded-lg text-xs font-semibold text-neutral-900 active:scale-95 transition-all" type="button">
+              Original
+            </button>
+<!-- Inactive Option: Pedas -->
+<button class="px-4 py-2 bg-white border border-neutral-200 rounded-lg text-xs font-medium text-neutral-500 active:scale-95 transition-all" type="button">
+              Pedas
+            </button>
+<!-- Inactive Option: Tanpa Telur -->
+<button class="px-4 py-2 bg-white border border-neutral-200 rounded-lg text-xs font-medium text-neutral-500 active:scale-95 transition-all" type="button">
+              Tanpa Telur
+            </button>
+</div>
+</div>
+<!-- END: VariantSelector -->
+<!-- BEGIN: QuantitySelector -->
+<div class="mt-6" data-purpose="quantity-counter">
+<h2 class="text-[15px] font-bold text-neutral-900 mb-3">Jumlah</h2>
+<!-- Counter Controls -->
+<div class="inline-flex items-center border border-neutral-200 rounded-lg p-0.5 bg-white">
+<button aria-label="Kurangi jumlah" class="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-neutral-700 active:bg-neutral-100 rounded-md transition-colors text-base font-medium" type="button">
+              −
+            </button>
+<span class="w-10 text-center font-bold text-sm text-neutral-800 select-none">
+              1
+            </span>
+<button aria-label="Tambah jumlah" class="w-8 h-8 flex items-center justify-center text-neutral-700 active:bg-neutral-100 rounded-md transition-colors text-base font-semibold" type="button">
+              +
+            </button>
+</div>
+</div>
+<!-- END: QuantitySelector -->
+</section>
+<!-- END: ProductInformation -->
+</div>
+<!-- END: ScrollableContent -->
+<!-- BEGIN: BottomStickyCTA -->
+<div class="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md px-5 pt-3 pb-3 border-t border-neutral-100 flex flex-col items-center z-20" data-purpose="cart-action-bar">
+<!-- Main Action Button -->
+<button class="w-full py-3.5 bg-[#FF5A00] hover:bg-[#ea5200] active:scale-[0.98] transition-all rounded-xl text-white font-bold text-base shadow-sm flex items-center justify-center space-x-1" type="button">
+<span>+ Keranjang</span>
+</button>
+<!-- iOS Home Indicator -->
+<div class="w-36 h-1 bg-neutral-900 rounded-full mt-4 mb-1"></div>
+</div>
+<!-- END: BottomStickyCTA -->
+</main>
+<!-- END: PhoneFrame -->
+</body></html>

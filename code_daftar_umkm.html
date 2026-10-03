@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Daftar UMKM - RasaLokal</title>
+<!-- Tailwind CSS CDN with forms and container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              orange: '#FF5722',
+              'orange-dark': '#E64A19',
+              light: '#FFF5F0',
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-scrollbars">
+    /* Utility class for hiding horizontal scrollbars */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style data-purpose="mobile-viewport">
+    /* Lock viewport to standard iPhone proportions */
+    body {
+      background-color: #F3F4F6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .iphone-frame {
+      width: 100%;
+      max-width: 390px;
+      height: 844px;
+      background-color: #FFFFFF;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      border-radius: 40px;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+<!-- BEGIN: PhoneContainer -->
+<main class="iphone-frame no-scrollbar flex flex-col justify-between" data-purpose="mobile-screen-container">
+<!-- Top Status Bar & Main Content Container -->
+<div class="flex-1 flex flex-col">
+<!-- BEGIN: iOSStatusBar -->
+<section class="w-full pt-3 px-7 pb-1 flex justify-between items-center text-xs font-semibold tracking-tight text-gray-900 select-none" data-purpose="ios-status-bar">
+<span>9:41</span>
+<!-- Dynamic Island Placeholder Indicator -->
+<div class="w-24 h-4 bg-black rounded-full mx-auto -mt-1 hidden sm:block"></div>
+<div class="flex items-center space-x-1.5 text-gray-900">
+<!-- Signal Icon -->
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24">
+<path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9zm0 2c3.87 0 7 3.13 7 7 0 1.5-.47 2.89-1.28 4.04L12 19.34l-5.72-3.3C5.47 14.89 5 13.5 5 12c0-3.87 3.13-7 7-7z"></path>
+</svg>
+<!-- Wifi Icon -->
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24">
+<path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0012 4zm0 3.3c3.78 0 7.21 1.44 9.8 3.82L12 19.01 2.2 11.12C4.79 8.74 8.22 7.3 12 7.3z"></path>
+</svg>
+<!-- Battery Icon -->
+<div class="w-5 h-2.5 border border-gray-900 rounded-sm p-0.5 flex items-center">
+<div class="h-full w-3 bg-gray-900 rounded-2xs"></div>
+</div>
+</div>
+</section>
+<!-- END: iOSStatusBar -->
+<!-- BEGIN: TopHeader -->
+<header class="px-4 py-2.5 flex items-center gap-2.5 sticky top-0 bg-white z-20 border-b border-gray-100" data-purpose="app-search-header">
+<!-- Back Navigation Button -->
+<button aria-label="Kembali" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-transform text-gray-700" type="button">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Search Bar Field -->
+<div class="flex-1 relative flex items-center" data-purpose="search-box">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+<svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</span>
+<input class="w-full bg-[#F5F5F7] text-gray-800 text-xs rounded-full pl-9 pr-4 py-2 border-0 focus:ring-1 focus:ring-[#FF5722] placeholder-gray-400 outline-none" placeholder="Cari makanan atau UMKM..." type="search"/>
+</div>
+<!-- Notification / Filter Icon -->
+<button aria-label="Filter atau Notifikasi" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-transform text-gray-700" type="button">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</header>
+<!-- END: TopHeader -->
+<!-- BEGIN: CategoryChips -->
+<nav class="py-2.5 px-4 overflow-x-auto no-scrollbar flex items-center gap-2 border-b border-gray-50" data-purpose="category-navigation">
+<!-- Active Chip: Semua -->
+<button class="px-4 py-1.5 rounded-full text-xs font-medium bg-[#FF5722] text-white shadow-sm flex-shrink-0 focus:outline-none" type="button">
+          Semua
+        </button>
+<!-- Inactive Chip: Pempek -->
+<button class="px-4 py-1.5 rounded-full text-xs font-medium bg-white text-gray-600 border border-gray-200 hover:border-gray-300 flex-shrink-0 focus:outline-none" type="button">
+          Pempek
+        </button>
+<!-- Inactive Chip: Makanan Berat -->
+<button class="px-4 py-1.5 rounded-full text-xs font-medium bg-white text-gray-600 border border-gray-200 hover:border-gray-300 flex-shrink-0 focus:outline-none" type="button">
+          Makanan Berat
+        </button>
+<!-- Inactive Chip: Camilan -->
+<button class="px-4 py-1.5 rounded-full text-xs font-medium bg-white text-gray-600 border border-gray-200 hover:border-gray-300 flex-shrink-0 focus:outline-none" type="button">
+          Camilan
+        </button>
+</nav>
+<!-- END: CategoryChips -->
+<!-- BEGIN: UMKMList -->
+<section class="flex-1 px-4 py-3 divide-y divide-gray-100" data-purpose="umkm-merchant-list">
+<!-- Merchant Card 1: Pempek Sari -->
+<article class="py-3 flex gap-3.5 items-center cursor-pointer group" data-purpose="merchant-card">
+<!-- Food Thumbnail -->
+<div class="w-[88px] h-[88px] flex-shrink-0 rounded-[12px] overflow-hidden bg-gray-100 shadow-sm">
+<img alt="Pempek Sari Palembang" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7KnnRayvoeJjr9ir61sfoOJh-xT4anqsFReGrouaT2hgYhxaspH-0JOi4l6xpWYm4M6-scPpjvaHNA8LhobAb1RumSRueg_G3gOzPIkBRL_SRqwILqsfGfLipEqmm-CoHoeeB8IRGpSGZaDKIlLwKR8yyilszd59V3Vr3-B9iwmgCyWhsqJhlyeSKAEh88fpu6IsKuxcKFwo4I_Dxottf5k08Ul_GHHmm7ENK8gRyFpuj3eZPX0IZA"/>
+</div>
+<!-- Merchant Details -->
+<div class="flex-1 min-w-0">
+<h2 class="text-sm font-bold text-gray-900 truncate">Pempek Sari</h2>
+<p class="text-xs text-gray-400 mt-0.5">Palembang</p>
+<!-- Rating & Distance -->
+<div class="flex items-center text-xs text-gray-500 mt-1">
+<span class="text-[#FF9800] mr-1 text-[13px] leading-none">★</span>
+<span class="font-semibold text-gray-800">4.8</span>
+<span class="text-gray-400 ml-0.5">(120+)</span>
+<span class="mx-1.5 text-gray-300">•</span>
+<span class="text-gray-500 font-normal">1.2 km</span>
+</div>
+<!-- Green Promo Badge -->
+<div class="mt-2 inline-flex items-center bg-emerald-50 text-emerald-600 text-[10px] font-medium px-2 py-0.5 rounded">
+              Gratis ongkir min. Rp50.000
+            </div>
+</div>
+</article>
+<!-- Merchant Card 2: Tekwan Lezat -->
+<article class="py-3.5 flex gap-3.5 items-center cursor-pointer group" data-purpose="merchant-card">
+<!-- Food Thumbnail -->
+<div class="w-[88px] h-[88px] flex-shrink-0 rounded-[12px] overflow-hidden bg-gray-100 shadow-sm">
+<img alt="Tekwan Lezat Palembang" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhdmnoL7cnp7ya4uBBgtrCM_4-7QoWejtscyP9JjuFOt7M3YdJgtxY7Txh4zqpTjhWe_3gxHfblZRzsSAIp6iY4a750cvApoWP39gc4bFJcjSi6oeK0TM4TT0ckhwYuiYIlyI4Pz_3Fobqef0hypm6RzbTbVLdvQLN81Heux2a-xRNdETYowCSoAVhShS0mc2il4AP29NdnSxXMQHvWY85saihXnZVbej4DAXp6G4IyJ3dlBTj-0dKLQ"/>
+</div>
+<!-- Merchant Details -->
+<div class="flex-1 min-w-0">
+<h2 class="text-sm font-bold text-gray-900 truncate">Tekwan Lezat</h2>
+<p class="text-xs text-gray-400 mt-0.5">Palembang</p>
+<!-- Rating & Distance -->
+<div class="flex items-center text-xs text-gray-500 mt-1.5">
+<span class="text-[#FF9800] mr-1 text-[13px] leading-none">★</span>
+<span class="font-semibold text-gray-800">4.6</span>
+<span class="text-gray-400 ml-0.5">(86)</span>
+<span class="mx-1.5 text-gray-300">•</span>
+<span class="text-gray-500 font-normal">2.1 km</span>
+</div>
+</div>
+</article>
+<!-- Merchant Card 3: Kerupuk Ikan 212 -->
+<article class="py-3.5 flex gap-3.5 items-center cursor-pointer group" data-purpose="merchant-card">
+<!-- Food Thumbnail -->
+<div class="w-[88px] h-[88px] flex-shrink-0 rounded-[12px] overflow-hidden bg-gray-100 shadow-sm">
+<img alt="Kerupuk Ikan 212" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUlWa6D3TcE1nd5TJeUYT38XxthmK5AeGB2iYS9j7Y3YrtIQm_z3SZiW8UT1dp11x61iKOWPtrtGKEaclfpyxW-AShms4QxSIF1ydWhQVCF2QPhyAxJK5j3rIFhjEpDOQNug-h7yDXsJbCx9GmYYNe5_x833T60cCs5SWOaRJN3T9OAAFtURCk2V-4BnhMcMdxyRXTphXnx9a8IQ4QFMR0p5R_eMTkei7kn5hetl3Mhk-wWlKM3YQafA"/>
+</div>
+<!-- Merchant Details -->
+<div class="flex-1 min-w-0">
+<h2 class="text-sm font-bold text-gray-900 truncate">Kerupuk Ikan 212</h2>
+<p class="text-xs text-gray-400 mt-0.5">Palembang</p>
+<!-- Rating & Distance -->
+<div class="flex items-center text-xs text-gray-500 mt-1.5">
+<span class="text-[#FF9800] mr-1 text-[13px] leading-none">★</span>
+<span class="font-semibold text-gray-800">4.7</span>
+<span class="text-gray-400 ml-0.5">(54)</span>
+<span class="mx-1.5 text-gray-300">•</span>
+<span class="text-gray-500 font-normal">3.4 km</span>
+</div>
+</div>
+</article>
+<!-- Merchant Card 4: Pempek & Cuko -->
+<article class="py-3.5 flex gap-3.5 items-center cursor-pointer group" data-purpose="merchant-card">
+<!-- Food Thumbnail -->
+<div class="w-[88px] h-[88px] flex-shrink-0 rounded-[12px] overflow-hidden bg-gray-100 shadow-sm">
+<img alt="Pempek &amp; Cuko Palembang" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7KnnRayvoeJjr9ir61sfoOJh-xT4anqsFReGrouaT2hgYhxaspH-0JOi4l6xpWYm4M6-scPpjvaHNA8LhobAb1RumSRueg_G3gOzPIkBRL_SRqwILqsfGfLipEqmm-CoHoeeB8IRGpSGZaDKIlLwKR8yyilszd59V3Vr3-B9iwmgCyWhsqJhlyeSKAEh88fpu6IsKuxcKFwo4I_Dxottf5k08Ul_GHHmm7ENK8gRyFpuj3eZPX0IZA"/>
+</div>
+<!-- Merchant Details -->
+<div class="flex-1 min-w-0">
+<h2 class="text-sm font-bold text-gray-900 truncate">Pempek &amp; Cuko</h2>
+<p class="text-xs text-gray-400 mt-0.5">Palembang</p>
+<!-- Rating & Distance -->
+<div class="flex items-center text-xs text-gray-500 mt-1.5">
+<span class="text-[#FF9800] mr-1 text-[13px] leading-none">★</span>
+<span class="font-semibold text-gray-800">4.5</span>
+<span class="text-gray-400 ml-0.5">(72)</span>
+<span class="mx-1.5 text-gray-300">•</span>
+<span class="text-gray-500 font-normal">3.8 km</span>
+</div>
+</div>
+</article>
+</section>
+<!-- END: UMKMList -->
+</div>
+<!-- BEGIN: iOSHomeIndicator -->
+<div class="w-full pb-2 pt-1 flex justify-center bg-white" data-purpose="home-indicator">
+<div class="w-32 h-1 bg-gray-300 rounded-full"></div>
+</div>
+<!-- END: iOSHomeIndicator -->
+</main>
+<!-- END: PhoneContainer -->
+</body></html>

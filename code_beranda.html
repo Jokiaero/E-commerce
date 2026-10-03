@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>RasaLokal - Beranda</title>
+<!-- Tailwind CSS v3 with forms and container-queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c'
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-scrollbars">
+    /* Sembunyikan scrollbar bawaan untuk tampilan mobile horizontal yang bersih */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-0 sm:p-4 font-sans antialiased text-gray-800 selection:bg-orange-100">
+<!-- BEGIN: MobileContainer -->
+<!-- Container utama menyerupai iPhone frame 390px x 844px -->
+<main class="w-[390px] h-[844px] bg-white flex flex-col relative overflow-hidden shadow-2xl rounded-none sm:rounded-[44px] border border-gray-100">
+<!-- BEGIN: iOSStatusBar -->
+<header class="w-full pt-3 px-7 pb-1.5 flex justify-between items-center bg-white z-20 select-none">
+<!-- Time -->
+<span class="text-[14px] font-semibold tracking-tight text-gray-900">9:41</span>
+<!-- Dynamic Island / Sensor Notch Placeholder -->
+<div class="w-24 h-4 bg-transparent rounded-full mx-auto"></div>
+<!-- Status Icons -->
+<div class="flex items-center space-x-2 text-gray-900">
+<!-- Cellular Signal -->
+<svg class="w-4 h-3.5 fill-current" viewbox="0 0 18 14">
+<rect height="4" rx="0.5" width="2.5" x="0" y="10"></rect>
+<rect height="7" rx="0.5" width="2.5" x="4" y="7"></rect>
+<rect height="10" rx="0.5" width="2.5" x="8" y="4"></rect>
+<rect height="13" rx="0.5" width="2.5" x="12" y="1"></rect>
+</svg>
+<!-- Wifi -->
+<svg class="w-4 h-3.5 fill-current" viewbox="0 0 20 15">
+<path clip-rule="evenodd" d="M10 14.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-4.95-4.95a7 7 0 019.9 0l1.414-1.414a9 9 0 00-12.728 0l1.414 1.414zm-2.828-2.828a11 11 0 0115.556 0l1.414-1.414a13 13 0 00-18.384 0l1.414 1.414z" fill-rule="evenodd"></path>
+</svg>
+<!-- Battery -->
+<div class="flex items-center">
+<div class="w-5 h-2.5 border border-gray-900 rounded-sm p-0.5 flex items-center">
+<div class="h-full w-full bg-gray-900 rounded-[1px]"></div>
+</div>
+<div class="w-0.5 h-1 bg-gray-900 rounded-r-sm"></div>
+</div>
+</div>
+</header>
+<!-- END: iOSStatusBar -->
+<!-- BEGIN: TopBar -->
+<section class="px-5 pt-1.5 pb-2.5 bg-white z-10" data-purpose="location-and-notification">
+<div class="flex items-center justify-between">
+<!-- Location Picker -->
+<div class="flex items-center space-x-1.5 cursor-pointer">
+<svg class="w-4 h-4 text-orange-500 flex-shrink-0" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" fill-rule="evenodd"></path>
+</svg>
+<span class="text-xs font-medium text-gray-700 tracking-tight">Palembang, Sumatera Selatan</span>
+<svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<!-- Notification Bell with Red Badge -->
+<button aria-label="Notifikasi" class="relative p-1 text-gray-700 hover:text-orange-500 focus:outline-none">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+</button>
+</div>
+<!-- Search Input Bar -->
+<div class="mt-3 relative" data-purpose="search-box">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<input class="w-full pl-9 pr-4 py-2.5 text-xs bg-gray-100/90 text-gray-800 placeholder-gray-400 rounded-xl border-none focus:ring-1 focus:ring-orange-400 focus:bg-white transition-all shadow-inner" placeholder="Cari makanan, minuman, atau UMKM..." type="search"/>
+</div>
+</section>
+<!-- END: TopBar -->
+<!-- BEGIN: ScrollableContent -->
+<div class="flex-1 overflow-y-auto no-scrollbar pb-6 space-y-4">
+<!-- BEGIN: HeroPromoBanner -->
+<section class="px-5 pt-1" data-purpose="hero-banner">
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#ffe5d0] via-[#ffd9b8] to-[#fec89a] p-4 flex items-center justify-between shadow-sm">
+<!-- Text Content -->
+<div class="max-w-[55%] z-10">
+<h2 class="text-sm font-bold text-gray-900 leading-snug">
+              Kuliner Lokal<br/>
+<span class="text-orange-700">Dari UMKM</span><br/>
+<span class="text-xs font-medium text-gray-700">untuk Indonesia</span>
+</h2>
+</div>
+<!-- Banner Food Image -->
+<div class="w-28 h-20 relative flex-shrink-0">
+<img alt="Kuliner Lokal Dari UMKM untuk Indonesia" class="w-full h-full object-cover rounded-xl shadow-md transform rotate-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7KnnRayvoeJjr9ir61sfoOJh-xT4anqsFReGrouaT2hgYhxaspH-0JOi4l6xpWYm4M6-scPpjvaHNA8LhobAb1RumSRueg_G3gOzPIkBRL_SRqwILqsfGfLipEqmm-CoHoeeB8IRGpSGZaDKIlLwKR8yyilszd59V3Vr3-B9iwmgCyWhsqJhlyeSKAEh88fpu6IsKuxcKFwo4I_Dxottf5k08Ul_GHHmm7ENK8gRyFpuj3eZPX0IZA"/>
+</div>
+</div>
+</section>
+<!-- END: HeroPromoBanner -->
+<!-- BEGIN: CategoryMenu -->
+<section class="px-5" data-purpose="category-navigation">
+<div class="grid grid-cols-5 gap-2 text-center">
+<!-- Category 1: Semua -->
+<button class="flex flex-col items-center group">
+<div class="w-12 h-12 rounded-2xl bg-orange-50 group-hover:bg-orange-100 flex items-center justify-center text-orange-500 shadow-sm transition">
+<svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24">
+<path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"></path>
+</svg>
+</div>
+<span class="mt-1 text-[11px] font-medium text-gray-700">Semua</span>
+</button>
+<!-- Category 2: Makanan -->
+<button class="flex flex-col items-center group">
+<div class="w-12 h-12 rounded-2xl bg-orange-50 group-hover:bg-orange-100 flex items-center justify-center text-orange-500 shadow-sm transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="mt-1 text-[11px] font-medium text-gray-700">Makanan</span>
+</button>
+<!-- Category 3: Minuman -->
+<button class="flex flex-col items-center group">
+<div class="w-12 h-12 rounded-2xl bg-orange-50 group-hover:bg-orange-100 flex items-center justify-center text-orange-500 shadow-sm transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="mt-1 text-[11px] font-medium text-gray-700">Minuman</span>
+</button>
+<!-- Category 4: Camilan -->
+<button class="flex flex-col items-center group">
+<div class="w-12 h-12 rounded-2xl bg-orange-50 group-hover:bg-orange-100 flex items-center justify-center text-orange-500 shadow-sm transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="mt-1 text-[11px] font-medium text-gray-700">Camilan</span>
+</button>
+<!-- Category 5: Oleh-oleh -->
+<button class="flex flex-col items-center group">
+<div class="w-12 h-12 rounded-2xl bg-orange-50 group-hover:bg-orange-100 flex items-center justify-center text-orange-500 shadow-sm transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 8v13m0-13V4m0 4h7m-7 0H5m14 0a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V10a2 2 0 012-2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="mt-1 text-[11px] font-medium text-gray-700">Oleh-oleh</span>
+</button>
+</div>
+</section>
+<!-- END: CategoryMenu -->
+<!-- BEGIN: SectionUMKMTerdekat -->
+<section class="pt-1" data-purpose="nearest-merchants">
+<!-- Section Header -->
+<div class="px-5 flex items-center justify-between mb-2">
+<h3 class="text-xs font-bold text-gray-900 tracking-tight">UMKM Terdekat</h3>
+<a class="text-[11px] font-medium text-orange-500 flex items-center" href="#">
+            Lihat Semua
+            <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+<!-- Horizontal Scroll Cards -->
+<div class="flex space-x-3 overflow-x-auto no-scrollbar px-5 py-1">
+<!-- Card 1: Pempek Sari -->
+<article class="w-[124px] flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="w-full h-20 bg-gray-100 relative">
+<img alt="Pempek Sari" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7KnnRayvoeJjr9ir61sfoOJh-xT4anqsFReGrouaT2hgYhxaspH-0JOi4l6xpWYm4M6-scPpjvaHNA8LhobAb1RumSRueg_G3gOzPIkBRL_SRqwILqsfGfLipEqmm-CoHoeeB8IRGpSGZaDKIlLwKR8yyilszd59V3Vr3-B9iwmgCyWhsqJhlyeSKAEh88fpu6IsKuxcKFwo4I_Dxottf5k08Ul_GHHmm7ENK8gRyFpuj3eZPX0IZA"/>
+</div>
+<div class="p-2">
+<h4 class="text-xs font-bold text-gray-900 truncate">Pempek Sari</h4>
+<p class="text-[10px] text-gray-400">Palembang</p>
+<div class="mt-1 flex items-center text-[10px] space-x-1">
+<span class="text-amber-500 font-semibold flex items-center">
+                  ★ <span class="ml-0.5 text-gray-700">4.8</span>
+</span>
+<span class="text-gray-300">•</span>
+<span class="text-gray-500 truncate">1.2 km</span>
+</div>
+</div>
+</article>
+<!-- Card 2: Dapur Mami -->
+<article class="w-[124px] flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="w-full h-20 bg-gray-100 relative">
+<img alt="Dapur Mami" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7KnnRayvoeJjr9ir61sfoOJh-xT4anqsFReGrouaT2hgYhxaspH-0JOi4l6xpWYm4M6-scPpjvaHNA8LhobAb1RumSRueg_G3gOzPIkBRL_SRqwILqsfGfLipEqmm-CoHoeeB8IRGpSGZaDKIlLwKR8yyilszd59V3Vr3-B9iwmgCyWhsqJhlyeSKAEh88fpu6IsKuxcKFwo4I_Dxottf5k08Ul_GHHmm7ENK8gRyFpuj3eZPX0IZA"/>
+</div>
+<div class="p-2">
+<h4 class="text-xs font-bold text-gray-900 truncate">Dapur Mami</h4>
+<p class="text-[10px] text-gray-400">Palembang</p>
+<div class="mt-1 flex items-center text-[10px] space-x-1">
+<span class="text-amber-500 font-semibold flex items-center">
+                  ★ <span class="ml-0.5 text-gray-700">4.6</span>
+</span>
+<span class="text-gray-300">•</span>
+<span class="text-gray-500 truncate">2.1 km</span>
+</div>
+</div>
+</article>
+<!-- Card 3: Rasa Palembang -->
+<article class="w-[124px] flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="w-full h-20 bg-gray-100 relative">
+<img alt="Rasa Palembang" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7KnnRayvoeJjr9ir61sfoOJh-xT4anqsFReGrouaT2hgYhxaspH-0JOi4l6xpWYm4M6-scPpjvaHNA8LhobAb1RumSRueg_G3gOzPIkBRL_SRqwILqsfGfLipEqmm-CoHoeeB8IRGpSGZaDKIlLwKR8yyilszd59V3Vr3-B9iwmgCyWhsqJhlyeSKAEh88fpu6IsKuxcKFwo4I_Dxottf5k08Ul_GHHmm7ENK8gRyFpuj3eZPX0IZA"/>
+</div>
+<div class="p-2">
+<h4 class="text-xs font-bold text-gray-900 truncate">Rasa Palembang</h4>
+<p class="text-[10px] text-gray-400">Palembang</p>
+<div class="mt-1 flex items-center text-[10px] space-x-1">
+<span class="text-amber-500 font-semibold flex items-center">
+                  ★ <span class="ml-0.5 text-gray-700">4.7</span>
+</span>
+<span class="text-gray-300">•</span>
+<span class="text-gray-500 truncate">2.5 km</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- END: SectionUMKMTerdekat -->
+<!-- BEGIN: SectionRekomendasi -->
+<section class="pt-1" data-purpose="recommendations">
+<!-- Section Header -->
+<div class="px-5 flex items-center justify-between mb-2">
+<h3 class="text-xs font-bold text-gray-900 tracking-tight">Rekomendasi Untuk Kamu</h3>
+</div>
+<!-- Horizontal Scroll Cards Rekomendasi -->
+<div class="flex space-x-3 overflow-x-auto no-scrollbar px-5 py-1">
+<!-- Recommendation Item 1 -->
+<article class="w-[124px] flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="w-full h-20 bg-gray-100 relative">
+<img alt="Pempek Kapal Selam" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7KnnRayvoeJjr9ir61sfoOJh-xT4anqsFReGrouaT2hgYhxaspH-0JOi4l6xpWYm4M6-scPpjvaHNA8LhobAb1RumSRueg_G3gOzPIkBRL_SRqwILqsfGfLipEqmm-CoHoeeB8IRGpSGZaDKIlLwKR8yyilszd59V3Vr3-B9iwmgCyWhsqJhlyeSKAEh88fpu6IsKuxcKFwo4I_Dxottf5k08Ul_GHHmm7ENK8gRyFpuj3eZPX0IZA"/>
+</div>
+<div class="p-2">
+<h4 class="text-xs font-bold text-gray-900 truncate">Kapal Selam</h4>
+<p class="text-[10px] text-gray-500 truncate">Pempek Sari</p>
+<p class="mt-1 text-xs font-bold text-orange-600">Rp 25.000</p>
+</div>
+</article>
+<!-- Recommendation Item 2 -->
+<article class="w-[124px] flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="w-full h-20 bg-gray-100 relative">
+<img alt="Tekwan Spesial" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7KnnRayvoeJjr9ir61sfoOJh-xT4anqsFReGrouaT2hgYhxaspH-0JOi4l6xpWYm4M6-scPpjvaHNA8LhobAb1RumSRueg_G3gOzPIkBRL_SRqwILqsfGfLipEqmm-CoHoeeB8IRGpSGZaDKIlLwKR8yyilszd59V3Vr3-B9iwmgCyWhsqJhlyeSKAEh88fpu6IsKuxcKFwo4I_Dxottf5k08Ul_GHHmm7ENK8gRyFpuj3eZPX0IZA"/>
+</div>
+<div class="p-2">
+<h4 class="text-xs font-bold text-gray-900 truncate">Tekwan Kuah</h4>
+<p class="text-[10px] text-gray-500 truncate">Dapur Mami</p>
+<p class="mt-1 text-xs font-bold text-orange-600">Rp 20.000</p>
+</div>
+</article>
+<!-- Recommendation Item 3 -->
+<article class="w-[124px] flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="w-full h-20 bg-gray-100 relative">
+<img alt="Pempek Kulit Crispy" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7KnnRayvoeJjr9ir61sfoOJh-xT4anqsFReGrouaT2hgYhxaspH-0JOi4l6xpWYm4M6-scPpjvaHNA8LhobAb1RumSRueg_G3gOzPIkBRL_SRqwILqsfGfLipEqmm-CoHoeeB8IRGpSGZaDKIlLwKR8yyilszd59V3Vr3-B9iwmgCyWhsqJhlyeSKAEh88fpu6IsKuxcKFwo4I_Dxottf5k08Ul_GHHmm7ENK8gRyFpuj3eZPX0IZA"/>
+</div>
+<div class="p-2">
+<h4 class="text-xs font-bold text-gray-900 truncate">Pempek Kulit</h4>
+<p class="text-[10px] text-gray-500 truncate">Rasa Palembang</p>
+<p class="mt-1 text-xs font-bold text-orange-600">Rp 18.000</p>
+</div>
+</article>
+</div>
+</section>
+<!-- END: SectionRekomendasi -->
+</div>
+<!-- END: ScrollableContent -->
+<!-- BEGIN: BottomNavigation -->
+<nav class="w-full bg-white border-t border-gray-100 px-6 pt-2 pb-5 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.03)]" data-purpose="bottom-navigation-bar">
+<div class="flex justify-between items-center text-center">
+<!-- Tab 1: Beranda (Active) -->
+<a aria-current="page" class="flex flex-col items-center text-orange-500 font-semibold" href="#">
+<svg class="w-5 h-5 mb-0.5" fill="currentColor" viewbox="0 0 20 20">
+<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+</svg>
+<span class="text-[10px]">Beranda</span>
+</a>
+<!-- Tab 2: Pesanan -->
+<a class="flex flex-col items-center text-gray-400 hover:text-orange-500 transition" href="#">
+<svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<span class="text-[10px]">Pesanan</span>
+</a>
+<!-- Tab 3: Favorit -->
+<a class="flex flex-col items-center text-gray-400 hover:text-orange-500 transition" href="#">
+<svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<span class="text-[10px]">Favorit</span>
+</a>
+<!-- Tab 4: Akun -->
+<a class="flex flex-col items-center text-gray-400 hover:text-orange-500 transition" href="#">
+<svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<span class="text-[10px]">Akun</span>
+</a>
+</div>
+<!-- iOS Home Indicator Bar -->
+<div class="w-32 h-1 bg-gray-300 rounded-full mx-auto mt-3"></div>
+</nav>
+<!-- END: BottomNavigation -->
+</main>
+<!-- END: MobileContainer -->
+</body></html>

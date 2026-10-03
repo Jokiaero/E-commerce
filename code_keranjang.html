@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Keranjang Belanja - RasaLokal</title>
+<!-- Load Tailwind CSS v3 with forms and container queries plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#FF5A00',
+              50: '#FFF6F2',
+              100: '#FFEADF',
+              500: '#FF5A00',
+              600: '#E54E00',
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-layout">
+    /* iOS frame setup and custom scroll styling */
+    body {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex justify-center items-center font-sans antialiased text-gray-900">
+<!-- BEGIN: MobileContainer -->
+<!-- Container fixed to standard iPhone dimensions (390px x 844px) matching design reference -->
+<main class="w-[390px] h-[844px] bg-white relative flex flex-col shadow-2xl overflow-hidden rounded-[44px] border-[8px] border-black">
+<!-- BEGIN: iOSStatusBar -->
+<header class="pt-3 px-7 flex justify-between items-center bg-white z-20 flex-shrink-0" data-purpose="status-bar">
+<!-- Current Time -->
+<span class="text-sm font-semibold text-black tracking-tight">9:47</span>
+<!-- Dynamic Island / Top Notch sensor simulator -->
+<div class="w-28 h-4 bg-black rounded-full mx-auto self-start mt-0.5"></div>
+<!-- Device status icons: Cell, WiFi, Battery -->
+<div class="flex items-center space-x-1.5 text-black">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 16 16">
+<path d="M1 11.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-3zm4-3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-6zm4-3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-9zm4-3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-12z"></path>
+</svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 16 16">
+<path d="M8.016 3.5a9.49 9.49 0 0 0-6.19 2.316.5.5 0 0 0 .047.76l1.246 1.01a.5.5 0 0 0 .685-.052 6.98 6.98 0 0 1 8.424 0 .5.5 0 0 0 .685.053l1.246-1.011a.5.5 0 0 0 .047-.76 9.49 9.49 0 0 0-6.19-2.316zm0 3.8a6.49 6.49 0 0 0-4.225 1.579.5.5 0 0 0 .03.771l1.245 1.01a.5.5 0 0 0 .708-.063 3.987 3.987 0 0 1 4.484 0 .5.5 0 0 0 .708.064l1.245-1.01a.5.5 0 0 0 .03-.772A6.49 6.49 0 0 0 8.016 7.3zm0 3.8a3.5 3.5 0 0 0-2.261.841.5.5 0 0 0-.012.784l1.986 1.611a.5.5 0 0 0 .574 0l1.986-1.61a.5.5 0 0 0-.012-.785A3.5 3.5 0 0 0 8.016 11.1z"></path>
+</svg>
+<div class="w-5 h-2.5 border border-black rounded-sm p-0.5 flex items-center">
+<div class="h-full bg-black w-3/4 rounded-2xs"></div>
+</div>
+</div>
+</header>
+<!-- END: iOSStatusBar -->
+<!-- BEGIN: TopAppBar -->
+<header class="h-12 px-4 flex items-center justify-between border-b border-gray-100 flex-shrink-0" data-purpose="top-navigation">
+<!-- Back button (<) -->
+<button aria-label="Kembali" class="w-8 h-8 flex items-center justify-center -ml-1 text-gray-800 active:opacity-60">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Center Title -->
+<h1 class="text-[17px] font-bold text-gray-900 tracking-tight">Keranjang (3)</h1>
+<!-- Edit action link -->
+<button class="text-sm font-semibold text-brand hover:text-brand-600 transition-colors pr-1">
+        Ubah
+      </button>
+</header>
+<!-- END: TopAppBar -->
+<!-- BEGIN: TopSubBar -->
+<!-- Select all items selector checkbox -->
+<section class="px-4 py-3 flex items-center bg-white border-b border-gray-100 flex-shrink-0" data-purpose="select-all-container">
+<label class="flex items-center space-x-3 cursor-pointer">
+<!-- Orange custom styled checkbox (Checked) -->
+<input checked="" class="w-5 h-5 rounded text-brand focus:ring-brand border-gray-300" type="checkbox"/>
+<span class="text-[14px] font-semibold text-gray-700">Pilih Semua</span>
+</label>
+</section>
+<!-- END: TopSubBar -->
+<!-- BEGIN: ProductCartList -->
+<!-- Scrollable list of items currently in user's shopping cart -->
+<section class="flex-1 overflow-y-auto hide-scrollbar px-4 divide-y divide-gray-100 pb-4" data-purpose="cart-items-list">
+<!-- Item 1: Pempek Kapal Selam -->
+<article class="py-4 flex items-start space-x-3" data-purpose="cart-item">
+<!-- Item Checkbox -->
+<div class="pt-5">
+<input checked="" class="w-5 h-5 rounded text-brand focus:ring-brand border-gray-300" type="checkbox"/>
+</div>
+<!-- Product Thumbnail Image -->
+<div class="w-[72px] h-[72px] rounded-[10px] overflow-hidden flex-shrink-0 bg-gray-100">
+<img alt="Pempek Kapal Selam" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMzwlLwca537HUXoonYu1eMEyz607-0PLLdfqOIJoe9LT6rL1sMJHLLHYkC95KC4NI-8cJRtgltbEohQYb4BBxPhUTCvOXBun2Gxrz4MseVoTaOhP6jip6j_STWPXlPiY_PCbKhzbBw3MBiLSn19iEFCM1nXWXnou9HwRDGFOGCt97TLA0Szv3xgcpeWVY39v9wgYrNb0qy1zbmP1zLoZVhowoCVIUaelYlOh-uPQSHdc-dXXkMK8Y7w"/>
+</div>
+<!-- Product Details -->
+<div class="flex-1 min-w-0 flex flex-col justify-between h-[72px]">
+<div>
+<h2 class="text-[14px] font-bold text-gray-900 truncate">Pempek Kapal Selam</h2>
+<p class="text-[12px] text-gray-400">Pempek Sari</p>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[14px] font-bold text-gray-900">Rp 25.000</span>
+<!-- Quantity Counter [-] 1 [+] -->
+<div class="flex items-center space-x-2.5">
+<button aria-label="Kurang satu" class="w-5 h-5 flex items-center justify-center text-gray-400 font-bold border border-gray-200 rounded text-xs active:bg-gray-100">-</button>
+<span class="text-xs font-semibold text-gray-800">1</span>
+<button aria-label="Tambah satu" class="w-5 h-5 flex items-center justify-center text-gray-400 font-bold border border-gray-200 rounded text-xs active:bg-gray-100">+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Item 2: Tekwan -->
+<article class="py-4 flex items-start space-x-3" data-purpose="cart-item">
+<!-- Item Checkbox -->
+<div class="pt-5">
+<input checked="" class="w-5 h-5 rounded text-brand focus:ring-brand border-gray-300" type="checkbox"/>
+</div>
+<!-- Product Thumbnail Image -->
+<div class="w-[72px] h-[72px] rounded-[10px] overflow-hidden flex-shrink-0 bg-gray-100">
+<img alt="Tekwan Dapur Mami" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhdmnoL7cnp7ya4uBBgtrCM_4-7QoWejtscyP9JjuFOt7M3YdJgtxY7Txh4zqpTjhWe_3gxHfblZRzsSAIp6iY4a750cvApoWP39gc4bFJcjSi6oeK0TM4TT0ckhwYuiYIlyI4Pz_3Fobqef0hypm6RzbTbVLdvQLN81Heux2a-xRNdETYowCSoAVhShS0mc2il4AP29NdnSxXMQHvWY85saihXnZVbej4DAXp6G4IyJ3dlBTj-0dKLQ"/>
+</div>
+<!-- Product Details -->
+<div class="flex-1 min-w-0 flex flex-col justify-between h-[72px]">
+<div>
+<h2 class="text-[14px] font-bold text-gray-900 truncate">Tekwan</h2>
+<p class="text-[12px] text-gray-400">Dapur Mami</p>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[14px] font-bold text-gray-900">Rp 20.000</span>
+<!-- Quantity Counter [-] 1 [+] -->
+<div class="flex items-center space-x-2.5">
+<button aria-label="Kurang satu" class="w-5 h-5 flex items-center justify-center text-gray-400 font-bold border border-gray-200 rounded text-xs active:bg-gray-100">-</button>
+<span class="text-xs font-semibold text-gray-800">1</span>
+<button aria-label="Tambah satu" class="w-5 h-5 flex items-center justify-center text-gray-400 font-bold border border-gray-200 rounded text-xs active:bg-gray-100">+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Item 3: Kerupuk Ikan -->
+<article class="py-4 flex items-start space-x-3" data-purpose="cart-item">
+<!-- Item Checkbox -->
+<div class="pt-5">
+<input checked="" class="w-5 h-5 rounded text-brand focus:ring-brand border-gray-300" type="checkbox"/>
+</div>
+<!-- Product Thumbnail Image -->
+<div class="w-[72px] h-[72px] rounded-[10px] overflow-hidden flex-shrink-0 bg-gray-100">
+<img alt="Kerupuk Ikan Rasa Palembang" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUlWa6D3TcE1nd5TJeUYT38XxthmK5AeGB2iYS9j7Y3YrtIQm_z3SZiW8UT1dp11x61iKOWPtrtGKEaclfpyxW-AShms4QxSIF1ydWhQVCF2QPhyAxJK5j3rIFhjEpDOQNug-h7yDXsJbCx9GmYYNe5_x833T60cCs5SWOaRJN3T9OAAFtURCk2V-4BnhMcMdxyRXTphXnx9a8IQ4QFMR0p5R_eMTkei7kn5hetl3Mhk-wWlKM3YQafA"/>
+</div>
+<!-- Product Details -->
+<div class="flex-1 min-w-0 flex flex-col justify-between h-[72px]">
+<div>
+<h2 class="text-[14px] font-bold text-gray-900 truncate">Kerupuk Ikan</h2>
+<p class="text-[12px] text-gray-400">Rasa Palembang</p>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[14px] font-bold text-gray-900">Rp 15.000</span>
+<!-- Quantity Counter [-] 1 [+] -->
+<div class="flex items-center space-x-2.5">
+<button aria-label="Kurang satu" class="w-5 h-5 flex items-center justify-center text-gray-400 font-bold border border-gray-200 rounded text-xs active:bg-gray-100">-</button>
+<span class="text-xs font-semibold text-gray-800">1</span>
+<button aria-label="Tambah satu" class="w-5 h-5 flex items-center justify-center text-gray-400 font-bold border border-gray-200 rounded text-xs active:bg-gray-100">+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Item 4: Es Kacang Merah -->
+<article class="py-4 flex items-start space-x-3" data-purpose="cart-item">
+<!-- Item Checkbox -->
+<div class="pt-5">
+<input checked="" class="w-5 h-5 rounded text-brand focus:ring-brand border-gray-300" type="checkbox"/>
+</div>
+<!-- Product Thumbnail Image -->
+<div class="w-[72px] h-[72px] rounded-[10px] overflow-hidden flex-shrink-0 bg-gray-100">
+<img alt="Es Kacang Merah Kedai Sejahtera" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArix709NOJ4txRMg8jwTLIHD64FP0Db9RcQWeewy0gd6Tm24Pox7WIi6K8KpsuR8HWU0FHydYnWVm8EBnouDMxLbttczjjOAxvqena2mWTKUEFk4deXcQW_Re3p6twMMs3mURO55_Hg3IgZdvpv0U042umY0jTUGm0PxI329PFMUbehWuXMWSOvCdytl-HvYYcnwWJGbacqwwEzZztIc5fZEucBNi1D-TaME751mtoWGIS6EjBDiUEgA"/>
+</div>
+<!-- Product Details -->
+<div class="flex-1 min-w-0 flex flex-col justify-between h-[72px]">
+<div>
+<h2 class="text-[14px] font-bold text-gray-900 truncate">Es Kacang Merah</h2>
+<p class="text-[12px] text-gray-400">Kedai Sejahtera</p>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[14px] font-bold text-gray-900">Rp 12.000</span>
+<!-- Quantity Counter [-] 1 [+] -->
+<div class="flex items-center space-x-2.5">
+<button aria-label="Kurang satu" class="w-5 h-5 flex items-center justify-center text-gray-400 font-bold border border-gray-200 rounded text-xs active:bg-gray-100">-</button>
+<span class="text-xs font-semibold text-gray-800">1</span>
+<button aria-label="Tambah satu" class="w-5 h-5 flex items-center justify-center text-gray-400 font-bold border border-gray-200 rounded text-xs active:bg-gray-100">+</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<!-- END: ProductCartList -->
+<!-- BEGIN: StickyBottomCheckout -->
+<!-- Bottom summary and primary checkout trigger -->
+<footer class="bg-white border-t border-gray-100 px-5 pt-3 pb-3 flex flex-col flex-shrink-0 space-y-3 shadow-lg" data-purpose="cart-checkout-footer">
+<!-- Total calculation row -->
+<div class="flex items-center justify-between text-sm">
+<span class="text-[13px] text-gray-600 font-medium">Total (3 produk)</span>
+<span class="text-[16px] font-bold text-brand">Rp 72.000</span>
+</div>
+<!-- Checkout CTA button -->
+<button class="w-full h-11 bg-brand text-white font-bold rounded-xl text-center flex items-center justify-center text-[15px] active:scale-[0.98] transition-transform shadow-md shadow-brand/20">
+        Checkout
+      </button>
+<!-- iOS Home Indicator -->
+<div class="w-32 h-1 bg-gray-300 rounded-full mx-auto mt-1 mb-0.5"></div>
+</footer>
+<!-- END: StickyBottomCheckout -->
+</main>
+<!-- END: MobileContainer -->
+</body></html>
