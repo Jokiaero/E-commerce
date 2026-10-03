@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppIcon } from '@/components/AppIcon';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { COLORS, SHADOW } from '@/constants/theme';
 import { IMAGES, merchants, products, ProductCategory, rupiah } from '@/constants/data';
 import { SectionHeader } from '@/components/SectionHeader';
+import { loadAccountData } from '@/lib/accountStorage';
 
 type Category = 'Semua' | ProductCategory;
 
@@ -21,6 +22,17 @@ export default function HomeScreen() {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category>('Semua');
+  const [currentAddress, setCurrentAddress] = useState('Palembang, Sumatera Selatan');
+
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    void loadAccountData().then((account) => {
+      if (active && account.address?.details) setCurrentAddress(account.address.details);
+    }).catch((error: unknown) => {
+      if (active) Alert.alert('Lokasi tidak dapat dimuat', error instanceof Error ? error.message : 'Periksa koneksi.');
+    });
+    return () => { active = false; };
+  }, []));
   const searchTerm = search.trim().toLocaleLowerCase('id-ID');
   const visibleProducts = products.filter((product) => {
     const matchesCategory = activeCategory === 'Semua' || product.category === activeCategory;
@@ -35,14 +47,14 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <View style={styles.topRow}>
-          <View>
+          <Pressable onPress={() => router.push('/location')} accessibilityRole="button" accessibilityLabel="Pilih lokasi">
             <Text style={styles.locationLabel}>Lokasi kamu</Text>
             <View style={styles.locationRow}>
               <AppIcon name="location" size={16} color={COLORS.primary} />
-              <Text style={styles.location}>Palembang, Sumatera Selatan</Text>
+              <Text style={styles.location} numberOfLines={1}>{currentAddress}</Text>
               <AppIcon name="chevron-down" size={14} color={COLORS.muted} />
             </View>
-          </View>
+          </Pressable>
           <View style={styles.bellWrap}>
             <AppIcon name="notifications-outline" size={22} color={COLORS.text} />
             <View style={styles.badge} />
@@ -146,7 +158,7 @@ const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8 },
   locationLabel: { fontSize: 10, color: COLORS.secondaryText, marginBottom: 2 },
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  location: { fontSize: 12, fontWeight: '700', color: COLORS.text },
+  location: { maxWidth: 240, fontSize: 12, fontWeight: '700', color: COLORS.text },
   bellWrap: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#FAFAFA', alignItems: 'center', justifyContent: 'center', position: 'relative' },
   badge: { position: 'absolute', top: 8, right: 8, width: 7, height: 7, borderRadius: 4, backgroundColor: COLORS.danger, borderWidth: 1, borderColor: '#fff' },
   searchBox: { marginTop: 14, height: 44, borderRadius: 13, backgroundColor: '#F4F4F4', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 13, gap: 8 },

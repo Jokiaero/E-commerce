@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Alert, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppIcon } from '@/components/AppIcon';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { COLORS } from '@/constants/theme';
 import { IMAGES, rupiah } from '@/constants/data';
 import { QuantityControl } from '@/components/QuantityControl';
+import { loadAccountData, toggleFavorite } from '@/lib/accountStorage';
 
 const variants = ['Original', 'Pedas', 'Tanpa Telur'];
 
@@ -13,6 +14,25 @@ export default function ProductScreen() {
   const router = useRouter();
   const [variant, setVariant] = useState('Original');
   const [qty, setQty] = useState(1);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    void loadAccountData().then((account) => {
+      if (active) setIsFavorite(account.favorites.includes('1'));
+    });
+    return () => { active = false; };
+  }, []));
+
+  const handleToggleFavorite = async () => {
+    try {
+      await toggleFavorite('1');
+      setIsFavorite((current) => !current);
+    } catch (error) {
+      Alert.alert('Favorit perlu akun', error instanceof Error ? error.message : 'Masuk untuk menyimpan produk favorit.');
+      router.push('/account-details?section=login' as any);
+    }
+  };
 
   return (
     <View style={styles.root}>
@@ -21,8 +41,8 @@ export default function ProductScreen() {
           <Pressable style={styles.roundButton} onPress={() => router.back()}>
             <AppIcon name="chevron-back" size={24} color="#fff" />
           </Pressable>
-          <Pressable style={styles.roundButton}>
-            <AppIcon name="heart-outline" size={22} color="#fff" />
+          <Pressable style={styles.roundButton} onPress={() => void handleToggleFavorite()} accessibilityRole="button" accessibilityLabel={isFavorite ? 'Hapus dari favorit' : 'Simpan ke favorit'}>
+            <AppIcon name={isFavorite ? 'heart' : 'heart-outline'} size={22} color="#fff" />
           </Pressable>
         </SafeAreaView>
       </ImageBackground>

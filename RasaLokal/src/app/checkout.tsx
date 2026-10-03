@@ -1,45 +1,60 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { AppIcon } from '@/components/AppIcon';
-import { useRouter } from 'expo-router';
 import { COLORS, SHADOW } from '@/constants/theme';
 import { rupiah } from '@/constants/data';
 import { TopHeader } from '@/components/TopHeader';
+import { EMPTY_ACCOUNT, loadAccountData, PAYMENT_OPTIONS, savePaymentMethod, type AccountData, type PaymentMethod } from '@/lib/accountStorage';
 
 const deliveryOptions = [
   { id: 'regular', name: 'Reguler (1-2 hari)', price: 10000 },
   { id: 'instant', name: 'Instant (hari ini)', price: 15000 },
 ];
 
-const payments = [
-  { id: 'bank', icon: 'business-outline', name: 'Transfer Bank' },
-  { id: 'wallet', icon: 'wallet-outline', name: 'E-Wallet (OVO, DANA, GoPay)' },
-  { id: 'cod', icon: 'cash-outline', name: 'COD (Bayar di Tempat)' },
-] as const;
-
 export default function CheckoutScreen() {
   const router = useRouter();
   const [delivery, setDelivery] = useState('regular');
-  const [payment, setPayment] = useState('bank');
+  const [account, setAccount] = useState<AccountData>(EMPTY_ACCOUNT);
   const shipping = deliveryOptions.find((d) => d.id === delivery)?.price ?? 10000;
   const subtotal = 72000;
+
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    void loadAccountData().then((data) => {
+      if (active) setAccount(data);
+    });
+    return () => { active = false; };
+  }, []));
+
+  const selectPayment = async (paymentMethod: PaymentMethod) => {
+    try {
+      await savePaymentMethod(paymentMethod);
+      setAccount((current) => ({ ...current, paymentMethod }));
+    } catch (error) {
+      Alert.alert('Tidak dapat menyimpan', error instanceof Error ? error.message : 'Masuk untuk menyimpan metode pembayaran.');
+      router.push('/account-details?section=login' as any);
+    }
+  };
+
+  const address = account.address;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <TopHeader title="Checkout" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.sectionTitle}>Alamat Pengiriman</Text>
-        <View style={styles.card}>
+        <Pressable style={styles.card} onPress={() => router.push('/account-details?section=address' as any)} accessibilityRole="button">
           <View style={styles.cardIcon}><AppIcon name="location" size={22} color={COLORS.primary} /></View>
           <View style={styles.flex}>
-            <Text style={styles.cardTitle}>Rumah</Text>
-            <Text style={styles.cardText}>Jl. Merdeka No. 21, Ilir Barat I, Palembang</Text>
-            <Text style={styles.cardText}>+62 812 3456 7890</Text>
+            <Text style={styles.cardTitle}>{address?.label ?? 'Alamat pengiriman'}</Text>
+            <Text style={styles.cardText}>{address ? `${address.recipient} · ${address.details}` : 'Belum ada alamat. Ketuk untuk menambahkan.'}</Text>
+            {address && <Text style={styles.cardText}>{address.phone}</Text>}
           </View>
           <AppIcon name="create-outline" size={20} color={COLORS.primary} />
-        </View>
-        <Pressable style={styles.addAddress}><AppIcon name="add-circle-outline" size={18} color={COLORS.primary} /><Text style={styles.addAddressText}>Tambah Alamat Baru</Text></Pressable>
+        </Pressable>
+        <Pressable style={styles.addAddress} onPress={() => router.push('/account-details?section=address' as any)}><AppIcon name="add-circle-outline" size={18} color={COLORS.primary} /><Text style={styles.addAddressText}>{address ? 'Ubah Alamat' : 'Tambah Alamat Baru'}</Text></Pressable>
 
         <Text style={styles.sectionTitle}>Metode Pengiriman</Text>
         <View style={styles.cardGroup}>
@@ -57,10 +72,10 @@ export default function CheckoutScreen() {
 
         <Text style={styles.sectionTitle}>Metode Pembayaran</Text>
         <View style={styles.cardGroup}>
-          {payments.map((item) => {
-            const active = payment === item.id;
+          {PAYMENT_OPTIONS.map((item) => {
+            const active = account.paymentMethod === item.id;
             return (
-              <Pressable key={item.id} style={styles.optionRow} onPress={() => setPayment(item.id)}>
+              <Pressable key={item.id} style={styles.optionRow} onPress={() => void selectPayment(item.id)}>
                 <View style={styles.paymentIcon}><AppIcon name={item.icon} size={18} color={COLORS.primary} /></View>
                 <Text style={styles.optionName}>{item.name}</Text>
                 <AppIcon name={active ? 'radio-button-on' : 'radio-button-off'} size={21} color={active ? COLORS.primary : COLORS.muted} />

@@ -32,6 +32,7 @@ const ICONS: Record<string, { ios: string; android: string; web: string }> = {
   star: { ios: 'star.fill', android: 'star', web: 'star' },
   'bag-check': { ios: 'bag.badge.checkmark', android: 'shopping_bag', web: 'shopping_bag' },
   checkbox: { ios: 'checkmark.square.fill', android: 'check_box', web: 'check_box' },
+  heart: { ios: 'heart.fill', android: 'favorite', web: 'favorite' },
   'heart-outline': { ios: 'heart', android: 'favorite_border', web: 'favorite_border' },
   'checkmark-circle-outline': { ios: 'checkmark.circle', android: 'check_circle', web: 'check_circle' },
   bicycle: { ios: 'bicycle', android: 'directions_bike', web: 'directions_bike' },
