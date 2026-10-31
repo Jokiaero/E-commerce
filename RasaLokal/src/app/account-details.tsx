@@ -140,7 +140,8 @@ export default function AccountDetailsScreen() {
         }
       }
       Alert.alert('Berhasil', authMode === 'signUp' ? 'Akun berhasil dibuat.' : 'Anda berhasil masuk.');
-      if (driverAuthentication) router.replace('/driver-register');
+      if (requestedReturnTo === '/driver-register') router.replace('/driver-register');
+      else if (requestedReturnTo === '/(tabs)') router.replace('/(tabs)');
       else safeBack();
     } catch (error) {
       setAuthMessage(error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' ? error.message : 'Tidak dapat masuk atau membuat akun. Coba lagi.');
@@ -294,16 +295,18 @@ export default function AccountDetailsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={safeBack} accessibilityRole="button" accessibilityLabel="Kembali">
-          <AppIcon name="chevron-back" size={22} color={COLORS.text} />
-        </Pressable>
-        <Text style={styles.headerTitle}>{section === 'login' && driverAuthentication ? 'Akun Driver' : TITLES[section]}</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safe, section === 'login' && styles.authSafe]} edges={['top', 'bottom']}>
+      {section !== 'login' && (
+        <View style={styles.header}>
+          <Pressable style={styles.backButton} onPress={safeBack} accessibilityRole="button" accessibilityLabel="Kembali">
+            <AppIcon name="chevron-back" size={22} color={COLORS.text} />
+          </Pressable>
+          <Text style={styles.headerTitle}>{TITLES[section]}</Text>
+          <View style={styles.headerSpacer} />
+        </View>
+      )}
 
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, section === 'login' && styles.authContent]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {loadingAccount && <ActivityIndicator style={styles.loader} size="large" color={COLORS.primary} />}
 
         {!loadingAccount && !needsLogin && section === 'security' && (
@@ -343,12 +346,17 @@ export default function AccountDetailsScreen() {
         )}
 
         {!loadingAccount && section === 'login' && (
-          <>
-            <View style={styles.intro}>
-              <View style={styles.introIcon}><AppIcon name="person" size={25} color={COLORS.primary} /></View>
-              <Text style={styles.heading}>{account.profile ? 'Profil saya' : authMode === 'signIn' ? driverAuthentication ? 'Masuk akun driver' : 'Masuk ke RasaLokal' : driverAuthentication ? 'Buat akun driver' : 'Buat akun RasaLokal'}</Text>
-              <Text style={styles.body}>{account.profile ? 'Perbarui informasi profil yang tersimpan di akunmu.' : driverAuthentication ? authMode === 'signUp' ? 'Buat akun, lalu lengkapi data kendaraan untuk ditinjau admin.' : 'Masuk untuk melanjutkan ke Pusat Driver.' : authMode === 'signUp' ? 'Lengkapi data berikut untuk membuat akun baru.' : 'Gunakan email dan kata sandi untuk masuk ke akun.'}</Text>
+          <View style={styles.authShell}>
+            <View style={styles.authHero}>
+              <View style={styles.authLogo}><AppIcon name="restaurant" size={30} color="#fff" /></View>
+              <Text style={styles.authBrand}><Text style={styles.authBrandAccent}>Rasa</Text>Lokal</Text>
+              <Text style={styles.authHeroText}>Kuliner lokal, UMKM naik kelas</Text>
             </View>
+            <View style={styles.authCard}>
+              <View style={styles.intro}>
+                <Text style={styles.heading}>{account.profile ? 'Profil saya' : authMode === 'signIn' ? driverAuthentication ? 'Masuk akun driver' : 'Selamat datang kembali' : driverAuthentication ? 'Buat akun driver' : 'Buat akun baru'}</Text>
+                <Text style={[styles.body, styles.authDescription]}>{account.profile ? 'Perbarui informasi profil yang tersimpan di akunmu.' : driverAuthentication ? authMode === 'signUp' ? 'Buat akun, lalu lengkapi data kendaraan untuk ditinjau admin.' : 'Masuk untuk melanjutkan ke Pusat Driver.' : authMode === 'signUp' ? 'Daftar untuk mulai belanja produk UMKM favoritmu.' : 'Masuk untuk melanjutkan ke RasaLokal.'}</Text>
+              </View>
             {account.profile ? (
               <>
                 <Field label="Nama lengkap" value={name} onChangeText={setName} placeholder="Nama kamu" />
@@ -357,6 +365,13 @@ export default function AccountDetailsScreen() {
               </>
             ) : (
               <>
+                <View style={styles.authTabs}>
+                  {(['signIn', 'signUp'] as const).map((mode) => (
+                    <Pressable key={mode} style={[styles.authTab, authMode === mode && styles.authTabActive]} onPress={() => { setAuthMode(mode); setAuthMessage(''); }}>
+                      <Text style={[styles.authTabText, authMode === mode && styles.authTabTextActive]}>{mode === 'signIn' ? 'Masuk' : 'Daftar'}</Text>
+                    </Pressable>
+                  ))}
+                </View>
                 {authMode === 'signUp' && (
                   <>
                     <Field label="Nama lengkap" value={name} onChangeText={setName} placeholder="Nama kamu" />
@@ -378,11 +393,13 @@ export default function AccountDetailsScreen() {
                   setAuthMode((current) => current === 'signIn' ? 'signUp' : 'signIn');
                   setAuthMessage('');
                 }}>
-                  <Text style={styles.authSwitchText}>{authMode === 'signIn' ? 'Belum punya akun? Daftar' : 'Sudah punya akun? Masuk'}</Text>
+                  <Text style={styles.authSwitchText}>{authMode === 'signIn' ? 'Belum punya akun? Daftar sekarang' : 'Sudah punya akun? Masuk di sini'}</Text>
                 </Pressable>
               </>
             )}
-          </>
+            </View>
+            <Text style={styles.authLegal}>Dengan melanjutkan, kamu menyetujui ketentuan dan kebijakan privasi RasaLokal.</Text>
+          </View>
         )}
 
         {!loadingAccount && needsLogin && (
@@ -552,11 +569,27 @@ function HelpContent({ openFaq, setOpenFaq }: { openFaq: number | null; setOpenF
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
+  authSafe: { backgroundColor: COLORS.orange50 },
   header: { minHeight: 54, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   backButton: { width: 40, height: 40, alignItems: 'flex-start', justifyContent: 'center' },
   headerTitle: { flex: 1, fontSize: 17, fontWeight: '900', color: COLORS.text },
-  headerSpacer: { width: 24 },
+  headerSpacer: { width: 40 },
   content: { padding: 18, paddingBottom: 36 },
+  authContent: { flexGrow: 1, padding: 0, paddingBottom: 28 },
+  authShell: { width: '100%', maxWidth: 520, alignSelf: 'center' },
+  authHero: { minHeight: 164, paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32, alignItems: 'center', backgroundColor: COLORS.orange50 },
+  authLogo: { width: 64, height: 64, borderRadius: 22, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 10, shadowColor: COLORS.primary, shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 5 },
+  authBrand: { color: COLORS.text, fontSize: 29, fontWeight: '900', letterSpacing: -0.8 },
+  authBrandAccent: { color: COLORS.primary },
+  authHeroText: { marginTop: 4, color: COLORS.secondaryText, fontSize: 12, fontWeight: '600' },
+  authCard: { marginTop: -16, marginHorizontal: 16, padding: 20, paddingBottom: 22, borderRadius: 24, backgroundColor: '#fff', shadowColor: '#3B2418', shadowOpacity: 0.09, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 4 },
+  authTabs: { height: 46, marginBottom: 5, padding: 4, borderRadius: 13, backgroundColor: '#F6F3F1', flexDirection: 'row' },
+  authTab: { flex: 1, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  authTabActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
+  authTabText: { color: COLORS.secondaryText, fontSize: 13, fontWeight: '800' },
+  authTabTextActive: { color: COLORS.primary },
+  authDescription: { marginTop: 5, textAlign: 'center' },
+  authLegal: { marginHorizontal: 38, marginTop: 18, color: COLORS.muted, fontSize: 10, lineHeight: 15, textAlign: 'center' },
   loader: { marginTop: 48 },
   securityRows: { paddingHorizontal: 13, borderRadius: 13, backgroundColor: '#fff' },
   securityPhotoRow: { minHeight: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#F1EFEF' },
