@@ -1,11 +1,12 @@
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Keyboard, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import * as Linking from 'expo-linking';
 import * as Location from 'expo-location';
 import type { Region } from 'react-native-maps';
 import { AppIcon } from '@/components/AppIcon';
+import { useSafeBack } from '@/hooks/useSafeBack';
 import LocationMap from '@/components/LocationMap';
 import type { LocationCoordinate } from '@/components/LocationMap.types';
 import { COLORS } from '@/constants/theme';
@@ -29,7 +30,7 @@ function formatAddress(address: Location.LocationGeocodedAddress | undefined, co
 }
 
 export default function LocationScreen() {
-  const router = useRouter();
+  const safeBack = useSafeBack('/(tabs)/profile');
   const [account, setAccount] = useState<AccountData>(EMPTY_ACCOUNT);
   const [coordinate, setCoordinate] = useState<LocationCoordinate>(PALembang);
   const [region, setRegion] = useState<Region>(DEFAULT_REGION);
@@ -153,7 +154,7 @@ export default function LocationScreen() {
         longitude: coordinate.longitude,
       });
       Alert.alert('Lokasi tersimpan', 'Alamat ini akan digunakan sebagai alamat pengiriman.', [
-        { text: 'Selesai', onPress: () => router.back() },
+        { text: 'Selesai', onPress: safeBack },
       ]);
     } catch (error) {
       Alert.alert('Lokasi belum tersimpan', error instanceof Error ? error.message : 'Masuk ke akun untuk menyimpan alamat.');
@@ -200,7 +201,7 @@ export default function LocationScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.header}>
-        <Pressable style={styles.back} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Kembali">
+        <Pressable style={styles.back} onPress={safeBack} accessibilityRole="button" accessibilityLabel="Kembali">
           <AppIcon name="chevron-back" size={23} color={COLORS.primary} />
         </Pressable>
         <View style={styles.searchBox}>

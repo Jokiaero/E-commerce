@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { AppIcon } from '@/components/AppIcon';
@@ -7,6 +7,9 @@ import { COLORS, SHADOW } from '@/constants/theme';
 import { rupiah } from '@/constants/data';
 import { TopHeader } from '@/components/TopHeader';
 import { EMPTY_ACCOUNT, loadAccountData, PAYMENT_OPTIONS, savePaymentMethod, type AccountData, type PaymentMethod } from '@/lib/accountStorage';
+import { checkoutCart, loadCartItems } from '@/lib/cartStorage';
+import { calculateOrderSummary, validateVoucher } from '@/lib/orderStorage';
+import { deliveryCoordinate } from '@/lib/deliveryTracking';
 
 const deliveryOptions = [
   { id: 'regular', name: 'Reguler (1-2 hari)', price: 10000 },
@@ -17,13 +20,28 @@ export default function CheckoutScreen() {
   const router = useRouter();
   const [delivery, setDelivery] = useState('regular');
   const [account, setAccount] = useState<AccountData>(EMPTY_ACCOUNT);
-  const shipping = deliveryOptions.find((d) => d.id === delivery)?.price ?? 10000;
-  const subtotal = 72000;
+  const [subtotal, setSubtotal] = useState(0);
+  const [storeCount, setStoreCount] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [voucherCode, setVoucherCode] = useState('');
+  const [voucherError, setVoucherError] = useState('');
+  const shippingPerStore = deliveryOptions.find((d) => d.id === delivery)?.price ?? 10000;
+  const shipping = shippingPerStore * storeCount;
+  const serviceFee = Math.max(0, Math.round(subtotal * 0.05));
+  const voucher = useMemo(() => validateVoucher(voucherCode, subtotal), [voucherCode, subtotal]);
+  const totals = useMemo(() => calculateOrderSummary({ subtotal, deliveryFee: shipping, serviceFee, discountAmount: voucher?.discount ?? 0 }), [subtotal, shipping, serviceFee, voucher]);
 
   useFocusEffect(useCallback(() => {
     let active = true;
     void loadAccountData().then((data) => {
       if (active) setAccount(data);
+    });
+    void loadCartItems().then((items) => {
+      if (!active) return;
+      setSubtotal(items.reduce((sum, item) => sum + item.price * item.quantity, 0));
+      setStoreCount(new Set(items.map((item) => item.storeId)).size);
+    }).catch((error: unknown) => {
+      if (active) Alert.alert('Keranjang tidak dapat dimuat', error instanceof Error ? error.message : 'Periksa koneksi Supabase.');
     });
     return () => { active = false; };
   }, []));
@@ -38,6 +56,75 @@ export default function CheckoutScreen() {
     }
   };
 
+  const applyVoucher = () => {
+    const trimmed = voucherCode.trim();
+    if (!trimmed) {
+      setVoucherError('Masukkan kode promo untuk mendapatkan diskon.');
+      return;
+    }
+    const result = validateVoucher(trimmed, subtotal);
+    if (!result) {
+      setVoucherError('Kode voucher tidak valid atau minimum transaksi belum terpenuhi.');
+      return;
+    }
+    setVoucherError('');
+    Alert.alert('Voucher aktif', `Diskon ${rupiah(result.discount)} berhasil diterapkan.`);
+  };
+
+  const placeOrder = async () => {
+    if (!account.profile) {
+      Alert.alert('Masuk diperlukan', 'Masuk ke akun sebelum membuat pesanan.', [
+        { text: 'Batal', style: 'cancel' },
+        { text: 'Masuk', onPress: () => router.push('/account-details?section=login' as any) },
+      ]);
+      return;
+    }
+    if (!account.address) {
+      Alert.alert('Alamat belum tersedia', 'Tambahkan alamat pengiriman sebelum membuat pesanan.', [
+        { text: 'Batal', style: 'cancel' },
+        { text: 'Tambah alamat', onPress: () => router.push('/account-details?section=address' as any) },
+      ]);
+      return;
+    }
+    if (storeCount === 0) {
+      Alert.alert('Keranjang kosong', 'Tambahkan produk sebelum checkout.');
+      return;
+    }
+    if (!account.address.recipient || !account.address.phone || !account.address.details) {
+      Alert.alert('Alamat tidak valid', 'Nama penerima, nomor telepon, dan detail alamat wajib diisi.');
+      return;
+    }
+    if (!deliveryCoordinate(account.address.latitude, account.address.longitude)) {
+      Alert.alert('Titik alamat diperlukan', 'Pilih titik lokasi pengiriman agar driver dapat menemukan alamatmu.');
+      router.push('/location');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const orderIds = await checkoutCart({
+        customerName: account.address.recipient || account.profile.name,
+        customerPhone: account.address.phone || account.profile.phone,
+        deliveryAddress: `${account.address.label} · ${account.address.details}`,
+        paymentMethod: account.paymentMethod,
+        shippingFee: shippingPerStore,
+        serviceFee: totals.serviceFee,
+        discountAmount: totals.discountAmount,
+        voucherCode: voucher?.code ?? '',
+      });
+      const orderId = orderIds[0];
+      if (account.paymentMethod === 'cod') {
+        Alert.alert('Pesanan dibuat', 'Pesanan bayar di tempat sudah dikirim ke toko terkait.');
+        router.replace({ pathname: '/tracking', params: { id: orderId } } as any);
+      } else {
+        router.replace({ pathname: '/payment', params: { orderIds: JSON.stringify(orderIds) } } as any);
+      }
+    } catch (error) {
+      Alert.alert('Checkout gagal', error instanceof Error ? error.message : 'Silakan coba lagi.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
   const address = account.address;
 
   return (
@@ -70,6 +157,25 @@ export default function CheckoutScreen() {
           })}
         </View>
 
+        <Text style={styles.sectionTitle}>Voucher</Text>
+        <View style={styles.cardGroup}>
+          <View style={styles.voucherRow}>
+            <TextInput
+              value={voucherCode}
+              onChangeText={(value) => { setVoucherCode(value); if (voucherError) setVoucherError(''); }}
+              placeholder="Masukkan kode voucher"
+              placeholderTextColor={COLORS.muted}
+              autoCapitalize="characters"
+              style={styles.voucherInput}
+            />
+            <Pressable style={styles.voucherButton} onPress={applyVoucher}>
+              <Text style={styles.voucherButtonText}>Terapkan</Text>
+            </Pressable>
+          </View>
+          {!!voucherError && <Text style={styles.voucherError}>{voucherError}</Text>}
+          {!!voucher && <Text style={styles.voucherSuccess}>Voucher aktif: {voucher.code} ({rupiah(voucher.discount)})</Text>}
+        </View>
+
         <Text style={styles.sectionTitle}>Metode Pembayaran</Text>
         <View style={styles.cardGroup}>
           {PAYMENT_OPTIONS.map((item) => {
@@ -87,14 +193,16 @@ export default function CheckoutScreen() {
         <View style={styles.summaryCard}>
           <SummaryRow label="Subtotal" value={rupiah(subtotal)} />
           <SummaryRow label="Ongkir" value={rupiah(shipping)} />
+          <SummaryRow label="Biaya layanan" value={rupiah(totals.serviceFee)} />
+          <SummaryRow label="Diskon" value={`- ${rupiah(totals.discountAmount)}`} />
           <View style={styles.divider} />
-          <SummaryRow label="Total Pembayaran" value={rupiah(subtotal + shipping)} bold />
+          <SummaryRow label="Total Pembayaran" value={rupiah(totals.total)} bold />
         </View>
       </ScrollView>
 
       <View style={styles.bottom}>
-        <View><Text style={styles.totalLabel}>Total Pembayaran</Text><Text style={styles.total}>{rupiah(subtotal + shipping)}</Text></View>
-        <Pressable style={styles.payButton} onPress={() => router.replace('/tracking')}><Text style={styles.payText}>Bayar Sekarang</Text></Pressable>
+        <View><Text style={styles.totalLabel}>Total Pembayaran</Text><Text style={styles.total}>{rupiah(totals.total)}</Text></View>
+        <Pressable style={[styles.payButton, (submitting || storeCount === 0) && styles.payButtonDisabled]} disabled={submitting || storeCount === 0} onPress={() => void placeOrder()}><Text style={styles.payText}>{submitting ? 'Memproses...' : 'Buat Pesanan'}</Text></Pressable>
       </View>
     </SafeAreaView>
   );
@@ -120,6 +228,12 @@ const styles = StyleSheet.create({
   optionName: { flex: 1, fontSize: 12, fontWeight: '700', color: COLORS.text },
   optionPrice: { fontSize: 11, fontWeight: '800', color: COLORS.text },
   paymentIcon: { width: 32, height: 32, borderRadius: 10, backgroundColor: COLORS.orange50, alignItems: 'center', justifyContent: 'center' },
+  voucherRow: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12 },
+  voucherInput: { flex: 1, height: 42, borderRadius: 10, paddingHorizontal: 12, backgroundColor: '#F7F7F7', color: COLORS.text, fontSize: 12, fontWeight: '700' },
+  voucherButton: { minHeight: 42, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
+  voucherButtonText: { color: '#fff', fontSize: 11, fontWeight: '800' },
+  voucherError: { color: COLORS.danger, fontSize: 10, paddingHorizontal: 12, paddingBottom: 12 },
+  voucherSuccess: { color: COLORS.success, fontSize: 10, paddingHorizontal: 12, paddingBottom: 12 },
   summaryCard: { marginTop: 18, backgroundColor: '#fff', borderRadius: 16, padding: 14, ...SHADOW },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 },
   summaryLabel: { fontSize: 12, color: COLORS.secondaryText },
@@ -131,5 +245,6 @@ const styles = StyleSheet.create({
   totalLabel: { fontSize: 9, color: COLORS.secondaryText },
   total: { marginTop: 2, fontSize: 17, fontWeight: '900', color: COLORS.text },
   payButton: { height: 48, minWidth: 155, backgroundColor: COLORS.primary, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  payButtonDisabled: { opacity: 0.5 },
   payText: { color: '#fff', fontSize: 13, fontWeight: '900' },
 });

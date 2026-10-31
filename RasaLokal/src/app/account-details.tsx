@@ -2,14 +2,18 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { AppIcon } from '@/components/AppIcon';
+import { useSafeBack } from '@/hooks/useSafeBack';
 import { COLORS } from '@/constants/theme';
-import { products, rupiah } from '@/constants/data';
-import { EMPTY_ACCOUNT, loadAccountData, PAYMENT_OPTIONS, saveAccountAddress, saveAccountProfile, savePaymentMethod, toggleFavorite as toggleFavoriteInDatabase, type AccountData, type PaymentMethod } from '@/lib/accountStorage';
+import { rupiah } from '@/constants/data';
+import { EMPTY_ACCOUNT, loadAccountData, loadAccountDeletionStatus, PAYMENT_OPTIONS, saveAccountAddress, saveAccountProfile, savePaymentMethod, submitAccountDeletionRequest, toggleFavorite as toggleFavoriteInDatabase, uploadAccountPhoto, type AccountData, type PaymentMethod } from '@/lib/accountStorage';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { loadPublicProducts } from '@/lib/catalogStorage';
 
 const TITLES: Record<string, string> = {
   login: 'Masuk / Daftar',
+  security: 'Akun & Keamanan',
   address: 'Alamat Saya',
   payment: 'Metode Pembayaran',
   favorites: 'Favorit',
@@ -19,10 +23,15 @@ const TITLES: Record<string, string> = {
 
 export default function AccountDetailsScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ section?: string | string[] }>();
+  const safeBack = useSafeBack('/(tabs)/profile');
+  const params = useLocalSearchParams<{ section?: string | string[]; authMode?: string | string[]; returnTo?: string | string[] }>();
   const rawSection = Array.isArray(params.section) ? params.section[0] : params.section;
+  const requestedAuthMode = Array.isArray(params.authMode) ? params.authMode[0] : params.authMode;
+  const requestedReturnTo = Array.isArray(params.returnTo) ? params.returnTo[0] : params.returnTo;
+  const driverAuthentication = requestedReturnTo === '/driver-register';
   const section = rawSection && TITLES[rawSection] ? rawSection : 'login';
   const [account, setAccount] = useState<AccountData>(EMPTY_ACCOUNT);
+  const [catalogProducts, setCatalogProducts] = useState<Awaited<ReturnType<typeof loadPublicProducts>>>([]);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [label, setLabel] = useState('Rumah');
@@ -33,18 +42,26 @@ export default function AccountDetailsScreen() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>('signIn');
+  const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>(requestedAuthMode === 'signUp' ? 'signUp' : 'signIn');
   const [authMessage, setAuthMessage] = useState('');
   const [loadingAccount, setLoadingAccount] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const needsLogin = ['address', 'payment', 'favorites'].includes(section) && !account.profile;
+  const [securityField, setSecurityField] = useState<'username' | 'phone' | null>(null);
+  const [securityValue, setSecurityValue] = useState('');
+  const [savingSecurityField, setSavingSecurityField] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+  const [deletionStatus, setDeletionStatus] = useState<'pending' | 'processing' | null>(null);
+  const [submittingDeletion, setSubmittingDeletion] = useState(false);
+  const needsLogin = ['security', 'address', 'payment', 'favorites'].includes(section) && !account.profile;
 
   useFocusEffect(useCallback(() => {
     let active = true;
     setLoadingAccount(true);
-    void loadAccountData().then((data) => {
+    void Promise.all([loadAccountData(), loadPublicProducts()]).then(([data, loadedProducts]) => {
       if (!active) return;
       setAccount(data);
+      setCatalogProducts(loadedProducts);
       setName(data.profile?.name ?? '');
       setPhone(data.profile?.phone ?? '');
       setLabel(data.address?.label ?? 'Rumah');
@@ -52,29 +69,43 @@ export default function AccountDetailsScreen() {
       setAddressPhone(data.address?.phone ?? data.profile?.phone ?? '');
       setAddressDetails(data.address?.details ?? '');
       setPaymentMethod(data.paymentMethod);
+      if (section === 'security' && data.profile) {
+        void loadAccountDeletionStatus().then((status) => {
+          if (active) setDeletionStatus(status);
+        }).catch((error: unknown) => {
+          if (active) Alert.alert('Status permintaan tidak dapat dimuat', error instanceof Error ? error.message : 'Periksa koneksi Supabase.');
+        });
+      } else {
+        setDeletionStatus(null);
+      }
     }).catch((error: unknown) => {
       if (active) Alert.alert('Data akun tidak dapat dimuat', error instanceof Error ? error.message : 'Periksa koneksi Supabase.');
     }).finally(() => {
       if (active) setLoadingAccount(false);
     });
     return () => { active = false; };
-  }, []));
+  }, [section]));
 
   const showError = (title: string, error: unknown) => {
     Alert.alert(title, error instanceof Error ? error.message : 'Terjadi kesalahan. Coba lagi.');
   };
 
   const handleAuthentication = async () => {
+    if (submitting) return;
+    setAuthMessage('');
     if (!isSupabaseConfigured) {
+      setAuthMessage('Layanan akun belum tersedia. Coba lagi nanti.');
       Alert.alert('Supabase belum terhubung', 'Tutup Expo, buka terminal di folder RasaLokal, lalu jalankan npx expo start -c.');
       return;
     }
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !password) {
+      setAuthMessage('Isi email dan kata sandi.');
       Alert.alert('Data belum lengkap', 'Isi email dan kata sandi.');
       return;
     }
     if (authMode === 'signUp' && (!name.trim() || phone.replace(/\D/g, '').length < 8)) {
+      setAuthMessage('Isi nama dan nomor telepon yang valid.');
       Alert.alert('Data belum lengkap', 'Isi nama dan nomor telepon yang valid.');
       return;
     }
@@ -92,7 +123,7 @@ export default function AccountDetailsScreen() {
         if (!data.session) {
           setAuthMode('signIn');
           setPassword('');
-          setAuthMessage('Supabase belum memberikan sesi. Pastikan Confirm email sudah dimatikan di pengaturan Auth.');
+          setAuthMessage('Akun berhasil dibuat. Periksa email untuk konfirmasi, lalu masuk kembali.');
           return;
         }
         await saveAccountProfile({ name: name.trim(), phone: phone.trim() });
@@ -109,8 +140,10 @@ export default function AccountDetailsScreen() {
         }
       }
       Alert.alert('Berhasil', authMode === 'signUp' ? 'Akun berhasil dibuat.' : 'Anda berhasil masuk.');
-      router.back();
+      if (driverAuthentication) router.replace('/driver-register');
+      else safeBack();
     } catch (error) {
+      setAuthMessage(error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' ? error.message : 'Tidak dapat masuk atau membuat akun. Coba lagi.');
       showError(authMode === 'signUp' ? 'Pendaftaran gagal' : 'Login gagal', error);
     } finally {
       setSubmitting(false);
@@ -127,7 +160,7 @@ export default function AccountDetailsScreen() {
     try {
       await saveAccountProfile({ name: cleanName, phone: cleanPhone });
       Alert.alert('Tersimpan', 'Profil berhasil diperbarui.');
-      router.back();
+      safeBack();
     } catch (error) {
       showError('Profil tidak dapat disimpan', error);
     }
@@ -144,11 +177,11 @@ export default function AccountDetailsScreen() {
         recipient: recipient.trim(),
         phone: addressPhone.trim(),
         details: addressDetails.trim(),
-        latitude: account.address?.latitude ?? null,
-        longitude: account.address?.longitude ?? null,
+        latitude: addressDetails.trim() === account.address?.details ? account.address.latitude : null,
+        longitude: addressDetails.trim() === account.address?.details ? account.address.longitude : null,
       });
       Alert.alert('Tersimpan', 'Alamat pengiriman berhasil disimpan.');
-      router.back();
+      safeBack();
     } catch (error) {
       showError('Alamat tidak dapat disimpan', error);
     }
@@ -158,7 +191,7 @@ export default function AccountDetailsScreen() {
     try {
       await savePaymentMethod(paymentMethod);
       Alert.alert('Tersimpan', 'Metode pembayaran utama berhasil disimpan.');
-      router.back();
+      safeBack();
     } catch (error) {
       showError('Metode pembayaran tidak dapat disimpan', error);
     }
@@ -178,25 +211,143 @@ export default function AccountDetailsScreen() {
     }
   };
 
+  const openSecurityEditor = (field: 'username' | 'phone') => {
+    if (!account.profile) return;
+    setSecurityValue(field === 'username' ? account.profile.name : account.profile.phone);
+    setSecurityField(field);
+  };
+
+  const saveSecurityField = async () => {
+    if (!account.profile || !securityField) return;
+    const value = securityValue.trim();
+    const nextName = securityField === 'username' ? value : account.profile.name;
+    const nextPhone = securityField === 'phone' ? value : account.profile.phone;
+    if (!nextName || nextPhone.replace(/\D/g, '').length < 8) {
+      Alert.alert('Periksa data', securityField === 'username' ? 'Username wajib diisi.' : 'Masukkan nomor handphone yang valid.');
+      return;
+    }
+    setSavingSecurityField(true);
+    try {
+      await saveAccountProfile({ name: nextName, phone: nextPhone });
+      setAccount((current) => current.profile
+        ? { ...current, profile: { ...current.profile, name: nextName, phone: nextPhone } }
+        : current);
+      setSecurityField(null);
+      Alert.alert('Tersimpan', 'Profil berhasil diperbarui.');
+    } catch (error) {
+      showError('Perubahan tidak dapat disimpan', error);
+    } finally {
+      setSavingSecurityField(false);
+    }
+  };
+
+  const chooseAvatar = async () => {
+    setAvatarError('');
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+        preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
+      });
+      if (result.canceled) return;
+      const asset = result.assets[0];
+      if (asset.fileSize !== undefined && asset.fileSize > 5 * 1024 * 1024) {
+        setAvatarError('Ukuran foto maksimal 5 MB. Pilih foto lain.');
+        return;
+      }
+      setUploadingAvatar(true);
+      const avatarUrl = await uploadAccountPhoto(asset);
+      setAccount((current) => current.profile
+        ? { ...current, profile: { ...current.profile, avatarUrl } }
+        : current);
+    } catch (error) {
+      setAvatarError(error instanceof Error ? error.message : 'Foto profil tidak dapat disimpan. Coba lagi.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const submitDeletion = async () => {
+    setSubmittingDeletion(true);
+    try {
+      const created = await submitAccountDeletionRequest();
+      setDeletionStatus('pending');
+      Alert.alert(created ? 'Permintaan terkirim' : 'Permintaan sudah tercatat', 'Akun tetap aktif sampai permintaan penghapusan ditinjau dan diproses.');
+    } catch (error) {
+      showError('Permintaan tidak dapat dikirim', error);
+    } finally {
+      setSubmittingDeletion(false);
+    }
+  };
+
+  const requestDeletion = () => {
+    if (deletionStatus) {
+      Alert.alert('Permintaan sedang diproses', 'Kami akan meninjau permintaan penghapusan akunmu.');
+      return;
+    }
+    Alert.alert('Ajukan penghapusan akun?', 'Permintaan akan ditinjau. Akunmu tidak langsung dihapus.', [
+      { text: 'Batal', style: 'cancel' },
+      { text: 'Ajukan', style: 'destructive', onPress: () => void submitDeletion() },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Kembali">
+        <Pressable style={styles.backButton} onPress={safeBack} accessibilityRole="button" accessibilityLabel="Kembali">
           <AppIcon name="chevron-back" size={22} color={COLORS.text} />
         </Pressable>
-        <Text style={styles.headerTitle}>{TITLES[section]}</Text>
+        <Text style={styles.headerTitle}>{section === 'login' && driverAuthentication ? 'Akun Driver' : TITLES[section]}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {loadingAccount && <ActivityIndicator style={styles.loader} size="large" color={COLORS.primary} />}
 
+        {!loadingAccount && !needsLogin && section === 'security' && (
+          <>
+            <View style={styles.securityRows}>
+              <Pressable style={styles.securityPhotoRow} onPress={() => void chooseAvatar()} disabled={uploadingAvatar} accessibilityRole="button" accessibilityLabel="Ubah foto profil">
+                <Text style={styles.securityLabel}>Foto</Text>
+                <View style={styles.securityPhotoRight}>
+                  {uploadingAvatar ? <ActivityIndicator size="small" color={COLORS.primary} /> : account.profile?.avatarUrl
+                    ? <Image source={{ uri: account.profile.avatarUrl }} style={styles.securityAvatar} />
+                    : <View style={styles.securityAvatarPlaceholder}><AppIcon name="person" size={20} color={COLORS.muted} /></View>}
+                  <AppIcon name="chevron-forward" size={16} color={COLORS.muted} />
+                </View>
+              </Pressable>
+              {avatarError !== '' && <Text style={styles.securityError}>{avatarError}</Text>}
+              <Pressable style={styles.securityInfoRow} onPress={() => openSecurityEditor('username')} accessibilityRole="button" accessibilityState={{ expanded: securityField === 'username' }}>
+                <Text style={styles.securityLabel}>Username</Text>
+                <Text style={styles.securityValue} numberOfLines={1}>{account.profile?.name}</Text>
+                <AppIcon name={securityField === 'username' ? 'chevron-down' : 'chevron-forward'} size={16} color={COLORS.muted} />
+              </Pressable>
+              {securityField === 'username' && <SecurityFieldEditor label="Username" value={securityValue} onChangeText={setSecurityValue} onCancel={() => setSecurityField(null)} onSave={() => void saveSecurityField()} saving={savingSecurityField} />}
+              <Pressable style={styles.securityInfoRow} onPress={() => openSecurityEditor('phone')} accessibilityRole="button" accessibilityState={{ expanded: securityField === 'phone' }}>
+                <Text style={styles.securityLabel}>No. Handphone</Text>
+                <Text style={styles.securityValue} numberOfLines={1}>{account.profile?.phone || 'Belum ditambahkan'}</Text>
+                <AppIcon name={securityField === 'phone' ? 'chevron-down' : 'chevron-forward'} size={16} color={COLORS.muted} />
+              </Pressable>
+              {securityField === 'phone' && <SecurityFieldEditor label="No. Handphone" value={securityValue} onChangeText={setSecurityValue} onCancel={() => setSecurityField(null)} onSave={() => void saveSecurityField()} saving={savingSecurityField} phone />}
+            </View>
+            <View style={styles.securityDeletionCard}>
+              <Pressable style={styles.securityDeletionRow} onPress={requestDeletion} disabled={submittingDeletion} accessibilityRole="button">
+                <Text style={styles.securityDeletionTitle}>Ajukan Penghapusan Akun</Text>
+                <Text style={styles.securityDeletionSubtitle}>{submittingDeletion ? 'Mengirim permintaan...' : deletionStatus ? 'Permintaan sedang diproses' : 'Akun tetap aktif sampai permintaan ditinjau'}</Text>
+                {submittingDeletion ? <ActivityIndicator size="small" color={COLORS.primary} /> : <AppIcon name="chevron-forward" size={16} color={COLORS.muted} />}
+              </Pressable>
+            </View>
+          </>
+        )}
+
         {!loadingAccount && section === 'login' && (
           <>
             <View style={styles.intro}>
               <View style={styles.introIcon}><AppIcon name="person" size={25} color={COLORS.primary} /></View>
-              <Text style={styles.heading}>{account.profile ? 'Profil saya' : authMode === 'signIn' ? 'Masuk ke RasaLokal' : 'Buat akun RasaLokal'}</Text>
-              <Text style={styles.body}>{account.profile ? 'Perbarui informasi profil yang tersimpan di akunmu.' : 'Gunakan email dan kata sandi untuk masuk ke akun.'}</Text>
+              <Text style={styles.heading}>{account.profile ? 'Profil saya' : authMode === 'signIn' ? driverAuthentication ? 'Masuk akun driver' : 'Masuk ke RasaLokal' : driverAuthentication ? 'Buat akun driver' : 'Buat akun RasaLokal'}</Text>
+              <Text style={styles.body}>{account.profile ? 'Perbarui informasi profil yang tersimpan di akunmu.' : driverAuthentication ? authMode === 'signUp' ? 'Buat akun, lalu lengkapi data kendaraan untuk ditinjau admin.' : 'Masuk untuk melanjutkan ke Pusat Driver.' : authMode === 'signUp' ? 'Lengkapi data berikut untuk membuat akun baru.' : 'Gunakan email dan kata sandi untuk masuk ke akun.'}</Text>
             </View>
             {account.profile ? (
               <>
@@ -214,6 +365,9 @@ export default function AccountDetailsScreen() {
                 )}
                 <Field label="Email" value={email} onChangeText={setEmail} placeholder="nama@email.com" keyboardType="email-address" autoCapitalize="none" />
                 <Field label="Kata sandi" value={password} onChangeText={setPassword} placeholder="Kata sandi akun" secureTextEntry autoCapitalize="none" />
+                {authMode === 'signIn' && <Pressable style={styles.authSwitch} onPress={() => router.push({ pathname: '/reset-password', params: { email: email.trim() } })} disabled={submitting} accessibilityRole="button">
+                  <Text style={styles.authSwitchText}>Lupa kata sandi?</Text>
+                </Pressable>}
                 {!!authMessage && <Text style={styles.authMessage}>{authMessage}</Text>}
                 <SaveButton
                   title={submitting ? 'Memproses...' : authMode === 'signIn' ? 'Masuk' : 'Buat akun'}
@@ -235,7 +389,7 @@ export default function AccountDetailsScreen() {
           <View style={styles.loginGate}>
             <View style={styles.introIcon}><AppIcon name="person" size={25} color={COLORS.primary} /></View>
             <Text style={styles.heading}>Masuk untuk melanjutkan</Text>
-            <Text style={styles.body}>Alamat, pembayaran, dan favorit disimpan untuk akunmu.</Text>
+            <Text style={styles.body}>{section === 'security' ? 'Masuk untuk mengelola profil dan keamanan akunmu.' : 'Alamat, pembayaran, dan favorit disimpan untuk akunmu.'}</Text>
             <SaveButton title="Masuk / Daftar" onPress={() => router.replace({ pathname: '/account-details', params: { section: 'login' } } as any)} />
           </View>
         )}
@@ -253,7 +407,7 @@ export default function AccountDetailsScreen() {
 
         {!loadingAccount && !needsLogin && section === 'payment' && (
           <>
-            <Text style={styles.body}>Pilih metode yang akan digunakan secara default saat checkout. Pembayaran di aplikasi ini masih berupa simulasi.</Text>
+            <Text style={styles.body}>Pilih metode pembayaran default. Transfer bank dan e-wallet hanya simulasi untuk tugas kampus, bukan transaksi sungguhan. Bayar di tempat dibayarkan langsung ke driver saat pesanan diterima.</Text>
             <View style={styles.options}>
               {PAYMENT_OPTIONS.map((option) => {
                 const active = paymentMethod === option.id;
@@ -276,14 +430,14 @@ export default function AccountDetailsScreen() {
         {!loadingAccount && !needsLogin && section === 'favorites' && (
           <>
             <Text style={styles.body}>Pilih ikon hati untuk menyimpan atau menghapus produk favorit.</Text>
-            {products.map((product) => {
+            {catalogProducts.map((product) => {
               const active = account.favorites.includes(product.id);
               return (
                 <View key={product.id} style={styles.productRow}>
-                  <Image source={{ uri: product.image }} style={styles.productImage} />
+                  {product.image ? <Image source={{ uri: product.image }} style={styles.productImage} /> : <View style={[styles.productImage, { backgroundColor: '#F4F4F4', alignItems: 'center', justifyContent: 'center' }]}><AppIcon name="restaurant" size={22} color={COLORS.muted} /></View>}
                   <View style={styles.productCopy}>
                     <Text style={styles.optionTitle}>{product.name}</Text>
-                    <Text style={styles.optionDescription}>{product.merchant}</Text>
+                    <Text style={styles.optionDescription}>{product.storeName}</Text>
                     <Text style={styles.productPrice}>{rupiah(product.price)}</Text>
                   </View>
                   <Pressable style={styles.heartButton} onPress={() => void toggleFavorite(product.id)} accessibilityRole="button" accessibilityLabel={active ? `Hapus ${product.name} dari favorit` : `Simpan ${product.name} ke favorit`}>
@@ -344,6 +498,30 @@ function SaveButton({ title, onPress, disabled }: { title: string; onPress: () =
   return <Pressable style={[styles.saveButton, disabled && styles.buttonDisabled]} onPress={onPress} disabled={disabled} accessibilityRole="button"><Text style={styles.saveButtonText}>{title}</Text></Pressable>;
 }
 
+function SecurityFieldEditor({ label, value, onChangeText, onCancel, onSave, saving, phone }: {
+  label: string;
+  value: string;
+  onChangeText: (value: string) => void;
+  onCancel: () => void;
+  onSave: () => void;
+  saving: boolean;
+  phone?: boolean;
+}) {
+  return (
+    <View style={styles.securityEditor}>
+      <Field label={label} value={value} onChangeText={onChangeText} placeholder={phone ? 'Contoh: 081234567890' : 'Nama pengguna'} keyboardType={phone ? 'phone-pad' : 'default'} />
+      <View style={styles.securityEditActions}>
+        <Pressable style={styles.securityCancelButton} onPress={onCancel} disabled={saving}>
+          <Text style={styles.securityCancelText}>Batal</Text>
+        </Pressable>
+        <Pressable style={[styles.securitySaveButton, saving && styles.buttonDisabled]} onPress={onSave} disabled={saving}>
+          {saving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.saveButtonText}>Simpan</Text>}
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
 function HelpContent({ openFaq, setOpenFaq }: { openFaq: number | null; setOpenFaq: (index: number | null) => void }) {
   const faqs = [
     { question: 'Bagaimana cara memilih metode pembayaran?', answer: 'Buka Akun > Metode Pembayaran, pilih opsi, lalu simpan. Pilihan akan tampil di checkout.' },
@@ -380,6 +558,24 @@ const styles = StyleSheet.create({
   headerSpacer: { width: 24 },
   content: { padding: 18, paddingBottom: 36 },
   loader: { marginTop: 48 },
+  securityRows: { paddingHorizontal: 13, borderRadius: 13, backgroundColor: '#fff' },
+  securityPhotoRow: { minHeight: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#F1EFEF' },
+  securityPhotoRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  securityAvatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: '#F2F2F2' },
+  securityAvatarPlaceholder: { width: 42, height: 42, borderRadius: 21, backgroundColor: '#F2F2F2', alignItems: 'center', justifyContent: 'center' },
+  securityInfoRow: { minHeight: 49, flexDirection: 'row', alignItems: 'center', gap: 9, borderBottomWidth: 1, borderBottomColor: '#F1EFEF' },
+  securityLabel: { flex: 1, fontSize: 11, color: COLORS.text },
+  securityValue: { maxWidth: '48%', fontSize: 11, color: COLORS.secondaryText },
+  securityError: { paddingVertical: 8, fontSize: 10, lineHeight: 15, color: COLORS.danger },
+  securityEditor: { paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F1EFEF' },
+  securityEditActions: { marginTop: 8, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 8 },
+  securityCancelButton: { minHeight: 38, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
+  securityCancelText: { fontSize: 11, fontWeight: '700', color: COLORS.secondaryText },
+  securitySaveButton: { minWidth: 88, minHeight: 38, paddingHorizontal: 14, borderRadius: 10, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
+  securityDeletionCard: { marginTop: 11, paddingHorizontal: 13, borderRadius: 13, backgroundColor: '#fff' },
+  securityDeletionRow: { minHeight: 66, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  securityDeletionTitle: { flex: 1, fontSize: 11, fontWeight: '700', color: COLORS.text },
+  securityDeletionSubtitle: { maxWidth: '40%', fontSize: 9, textAlign: 'right', color: COLORS.secondaryText },
   intro: { alignItems: 'center', paddingVertical: 16, marginBottom: 8 },
   introIcon: { width: 54, height: 54, borderRadius: 18, backgroundColor: COLORS.orange50, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   heading: { fontSize: 19, lineHeight: 25, fontWeight: '900', color: COLORS.text },

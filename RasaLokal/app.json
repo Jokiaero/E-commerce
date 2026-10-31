@@ -38,6 +38,14 @@
         {
           "locationWhenInUsePermission": "RasaLokal menggunakan lokasi untuk membantu memilih alamat pengiriman."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "RasaLokal menggunakan foto yang kamu pilih untuk foto produk dan bukti pengantaran.",
+          "cameraPermission": "RasaLokal menggunakan kamera untuk mengambil bukti pengantaran pesanan.",
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

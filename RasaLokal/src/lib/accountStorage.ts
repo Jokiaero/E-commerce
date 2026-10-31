@@ -1,4 +1,6 @@
 import { assertSupabaseConfigured, isSupabaseConfigured, supabase } from '@/lib/supabase';
+import type { ImagePickerAsset } from 'expo-image-picker';
+import { uploadUserImage } from '@/lib/imageStorage';
 
 export type PaymentMethod = 'bank' | 'wallet' | 'cod';
 
@@ -12,7 +14,7 @@ export type AccountAddress = {
 };
 
 export type AccountData = {
-  profile: { name: string; phone: string } | null;
+  profile: { name: string; phone: string; avatarUrl: string | null } | null;
   address: AccountAddress | null;
   paymentMethod: PaymentMethod;
   favorites: string[];
@@ -24,8 +26,8 @@ export const PAYMENT_OPTIONS: readonly {
   name: string;
   description: string;
 }[] = [
-  { id: 'bank', icon: 'business-outline', name: 'Transfer Bank', description: 'Instruksi transfer ditampilkan saat checkout.' },
-  { id: 'wallet', icon: 'wallet-outline', name: 'E-Wallet', description: 'OVO, DANA, atau GoPay (simulasi).' },
+  { id: 'bank', icon: 'business-outline', name: 'Transfer Bank', description: 'Pilih bank virtual demo saat checkout.' },
+  { id: 'wallet', icon: 'wallet-outline', name: 'E-Wallet', description: 'Pilih e-wallet demo saat checkout.' },
   { id: 'cod', icon: 'cash-outline', name: 'Bayar di Tempat', description: 'Bayar langsung saat pesanan diterima.' },
 ];
 
@@ -52,7 +54,7 @@ export async function loadAccountData(): Promise<AccountData> {
   if (!user) return { ...EMPTY_ACCOUNT, favorites: [] };
 
   const [profileResult, addressResult, favoritesResult] = await Promise.all([
-    supabase.from('profiles').select('full_name, phone, payment_method').eq('id', user.id).maybeSingle(),
+    supabase.from('profiles').select('full_name, phone, payment_method, avatar_path').eq('id', user.id).maybeSingle(),
     supabase.from('addresses').select('label, recipient, phone, details, latitude, longitude').eq('user_id', user.id).limit(1).maybeSingle(),
     supabase.from('favorites').select('product_id').eq('user_id', user.id),
   ]);
@@ -63,8 +65,13 @@ export async function loadAccountData(): Promise<AccountData> {
 
   const profile = profileResult.data;
   const address = addressResult.data;
+  let avatarUrl: string | null = null;
+  if (profile?.avatar_path) {
+    const { data: signedImage } = await supabase.storage.from('profile-images').createSignedUrl(profile.avatar_path, 3600);
+    avatarUrl = signedImage?.signedUrl ?? null;
+  }
   return {
-    profile: profile ? { name: profile.full_name, phone: profile.phone } : null,
+    profile: profile ? { name: profile.full_name, phone: profile.phone, avatarUrl } : null,
     address: address ? {
       label: address.label,
       recipient: address.recipient,
@@ -133,4 +140,47 @@ export async function toggleFavorite(productId: string): Promise<void> {
     : await supabase.from('favorites').insert({ user_id: userId, product_id: productId });
 
   if (result.error) throw result.error;
+}
+
+export async function uploadAccountPhoto(asset: ImagePickerAsset): Promise<string> {
+  const userId = await requireUserId();
+  const avatarPath = await uploadUserImage(asset, 'profile-images');
+  const { error } = await supabase.from('profiles').upsert({
+    id: userId,
+    avatar_path: avatarPath,
+  }, { onConflict: 'id' });
+  if (error) throw error;
+
+  const { data, error: urlError } = await supabase.storage.from('profile-images').createSignedUrl(avatarPath, 3600);
+  if (urlError) throw urlError;
+  return data.signedUrl;
+}
+
+export async function loadAccountDeletionStatus(): Promise<'pending' | 'processing' | null> {
+  const userId = await requireUserId();
+  const { data, error } = await supabase
+    .from('account_deletion_requests')
+    .select('status')
+    .eq('user_id', userId)
+    .in('status', ['pending', 'processing'])
+    .maybeSingle();
+  if (error) throw error;
+  return data?.status === 'processing' ? 'processing' : data ? 'pending' : null;
+}
+
+export async function submitAccountDeletionRequest(): Promise<boolean> {
+  const userId = await requireUserId();
+  const { data: existingRequest, error: readError } = await supabase
+    .from('account_deletion_requests')
+    .select('id')
+    .eq('user_id', userId)
+    .in('status', ['pending', 'processing'])
+    .maybeSingle();
+  if (readError) throw readError;
+  if (existingRequest) return false;
+
+  const { error } = await supabase.from('account_deletion_requests').insert({ user_id: userId });
+  if (error?.code === '23505') return false;
+  if (error) throw error;
+  return true;
 }

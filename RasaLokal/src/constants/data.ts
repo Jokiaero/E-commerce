@@ -10,33 +10,4 @@ export const IMAGES = {
 
 export type ProductCategory = 'Makanan' | 'Minuman' | 'Camilan' | 'Oleh-oleh';
 
-export const products = [
-  { id: '1', name: 'Kapal Selam', merchant: 'Pempek Sari', price: 25000, image: IMAGES.pempek, category: 'Makanan' },
-  { id: '2', name: 'Tekwan Kuah', merchant: 'Dapur Mami', price: 20000, image: IMAGES.tekwan, category: 'Makanan' },
-  { id: '3', name: 'Pempek Kulit', merchant: 'Rasa Palembang', price: 18000, image: IMAGES.kerupuk, category: 'Camilan' },
-  { id: '4', name: 'Es Kacang Merah', merchant: 'Kedai Sejahtera', price: 12000, image: IMAGES.kacang, category: 'Minuman' },
-  { id: '5', name: 'Kerupuk Ikan Palembang', merchant: 'Kerupuk Ikan 212', price: 30000, image: IMAGES.kerupuk, category: 'Oleh-oleh' },
-] satisfies Array<{
-  id: string;
-  name: string;
-  merchant: string;
-  price: number;
-  image: string;
-  category: ProductCategory;
-}>;
-
-export const merchants = [
-  { id: '1', name: 'Pempek Sari', city: 'Palembang', rating: '4.8', reviews: '120+', distance: '1.2 km', image: IMAGES.hero },
-  { id: '2', name: 'Tekwan Lezat', city: 'Palembang', rating: '4.6', reviews: '86', distance: '2.1 km', image: IMAGES.tekwan },
-  { id: '3', name: 'Kerupuk Ikan 212', city: 'Palembang', rating: '4.7', reviews: '54', distance: '3.4 km', image: IMAGES.kerupuk },
-  { id: '4', name: 'Pempek & Cuko', city: 'Palembang', rating: '4.5', reviews: '72', distance: '3.8 km', image: IMAGES.pempek },
-];
-
-export const cartItems = [
-  { id: '1', name: 'Pempek Kapal Selam', merchant: 'Pempek Sari', price: 25000, image: IMAGES.pempek },
-  { id: '2', name: 'Tekwan', merchant: 'Dapur Mami', price: 20000, image: IMAGES.tekwan },
-  { id: '3', name: 'Kerupuk Ikan', merchant: 'Rasa Palembang', price: 15000, image: IMAGES.kerupuk },
-  { id: '4', name: 'Es Kacang Merah', merchant: 'Kedai Sejahtera', price: 12000, image: IMAGES.kacang },
-];
-
 export const rupiah = (value: number) => `Rp ${value.toLocaleString('id-ID')}`;

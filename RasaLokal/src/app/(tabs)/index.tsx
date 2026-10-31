@@ -4,13 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppIcon } from '@/components/AppIcon';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { COLORS, SHADOW } from '@/constants/theme';
-import { IMAGES, merchants, products, ProductCategory, rupiah } from '@/constants/data';
+import { IMAGES, ProductCategory, rupiah } from '@/constants/data';
 import { SectionHeader } from '@/components/SectionHeader';
 import { loadAccountData } from '@/lib/accountStorage';
+import { loadPublicProducts, loadPublicStores, type CatalogProduct, type Store } from '@/lib/catalogStorage';
 
 type Category = 'Semua' | ProductCategory;
 
-const categories: ReadonlyArray<{ icon: string; label: Category }> = [
+const categories: readonly { icon: string; label: Category }[] = [
   { icon: 'grid', label: 'Semua' },
   { icon: 'restaurant', label: 'Makanan' },
   { icon: 'cafe', label: 'Minuman' },
@@ -18,30 +19,60 @@ const categories: ReadonlyArray<{ icon: string; label: Category }> = [
   { icon: 'gift', label: 'Oleh-oleh' },
 ];
 
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string') {
+    return error.message;
+  }
+  return fallback;
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category>('Semua');
   const [currentAddress, setCurrentAddress] = useState('Palembang, Sumatera Selatan');
+  const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
 
   useFocusEffect(useCallback(() => {
     let active = true;
-    void loadAccountData().then((account) => {
-      if (active && account.address?.details) setCurrentAddress(account.address.details);
-    }).catch((error: unknown) => {
-      if (active) Alert.alert('Lokasi tidak dapat dimuat', error instanceof Error ? error.message : 'Periksa koneksi.');
+    void Promise.allSettled([loadAccountData(), loadPublicProducts(), loadPublicStores()]).then(([accountResult, productsResult, storesResult]) => {
+      if (!active) return;
+
+      if (accountResult.status === 'fulfilled') {
+        if (accountResult.value.address?.details) setCurrentAddress(accountResult.value.address.details);
+      }
+      if (productsResult.status === 'fulfilled') setProducts(productsResult.value);
+      if (storesResult.status === 'fulfilled') {
+        const loadedProducts = productsResult.status === 'fulfilled' ? productsResult.value : [];
+        setStores(storesResult.value.filter((store) => loadedProducts.some((product) => product.storeId === store.id)));
+      }
+
+      const issues: string[] = [];
+      if (accountResult.status === 'rejected') {
+        issues.push(`Data akun: ${getErrorMessage(accountResult.reason, 'tidak dapat dimuat')}`);
+      }
+      if (productsResult.status === 'rejected') {
+        issues.push(`Produk: ${getErrorMessage(productsResult.reason, 'tidak dapat dimuat')}`);
+      }
+      if (storesResult.status === 'rejected') {
+        issues.push(`Toko: ${getErrorMessage(storesResult.reason, 'tidak dapat dimuat')}`);
+      }
+      if (issues.length > 0) Alert.alert('Sebagian data tidak dapat dimuat', issues.join('\n'));
     });
     return () => { active = false; };
   }, []));
   const searchTerm = search.trim().toLocaleLowerCase('id-ID');
   const visibleProducts = products.filter((product) => {
     const matchesCategory = activeCategory === 'Semua' || product.category === activeCategory;
-    const matchesSearch = !searchTerm || `${product.name} ${product.merchant} ${product.category}`
+    const matchesSearch = !searchTerm || `${product.name} ${product.storeName} ${product.category}`
       .toLocaleLowerCase('id-ID')
       .includes(searchTerm);
 
     return matchesCategory && matchesSearch;
   });
+  const visibleStores = stores.slice(0, 3);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -55,10 +86,14 @@ export default function HomeScreen() {
               <AppIcon name="chevron-down" size={14} color={COLORS.muted} />
             </View>
           </Pressable>
-          <View style={styles.bellWrap}>
+          <Pressable
+            onPress={() => router.push('/notifications' as any)}
+            accessibilityRole="button"
+            accessibilityLabel="Buka notifikasi pesanan"
+            style={styles.bellWrap}
+          >
             <AppIcon name="notifications-outline" size={22} color={COLORS.text} />
-            <View style={styles.badge} />
-          </View>
+          </Pressable>
         </View>
 
         <View style={styles.searchBox}>
@@ -106,19 +141,23 @@ export default function HomeScreen() {
         <View style={styles.sectionBlock}>
           <SectionHeader title="UMKM Terdekat" action="Lihat Semua" onPress={() => router.push('/(tabs)/umkm')} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
-            {merchants.slice(0, 3).map((merchant) => (
-              <Pressable key={merchant.id} style={styles.merchantCard} onPress={() => router.push('/product')}>
-                <Image source={{ uri: merchant.image }} style={styles.merchantImage} />
+            {visibleStores.map((merchant) => {
+              const storeProduct = products.find((product) => product.storeId === merchant.id);
+              return (
+              <Pressable key={merchant.id} style={styles.merchantCard} onPress={() => storeProduct && router.push({ pathname: '/product', params: { id: storeProduct.id } } as any)}>
+                {merchant.imageUrl
+                  ? <Image source={{ uri: merchant.imageUrl }} style={styles.merchantImage} resizeMode="cover" />
+                  : <View style={styles.merchantImage}><AppIcon name="storefront" size={34} color={COLORS.primary} /></View>}
                 <Text style={styles.merchantName}>{merchant.name}</Text>
-                <Text style={styles.merchantCity}>{merchant.city}</Text>
+                <Text style={styles.merchantCity} numberOfLines={1}>{merchant.address}</Text>
                 <View style={styles.ratingRow}>
-                  <AppIcon name="star" size={12} color="#F59E0B" />
-                  <Text style={styles.rating}>{merchant.rating}</Text>
-                  <Text style={styles.dot}>.</Text>
-                  <Text style={styles.distance}>{merchant.distance}</Text>
+                  <AppIcon name="restaurant" size={12} color={COLORS.primary} />
+                  <Text style={styles.distance}>Lihat produk toko</Text>
                 </View>
               </Pressable>
-            ))}
+              );
+            })}
+            {visibleStores.length === 0 && <Text style={styles.emptySubtitle}>Belum ada toko aktif.</Text>}
           </ScrollView>
         </View>
 
@@ -126,11 +165,11 @@ export default function HomeScreen() {
           <SectionHeader title={activeCategory === 'Semua' ? 'Rekomendasi Untuk Kamu' : `Rekomendasi ${activeCategory}`} />
           <View style={styles.productGrid}>
             {visibleProducts.map((product) => (
-              <Pressable key={product.id} style={styles.productCard} onPress={() => router.push('/product')}>
-                <Image source={{ uri: product.image }} style={styles.productImage} />
+              <Pressable key={product.id} style={styles.productCard} onPress={() => router.push({ pathname: '/product', params: { id: product.id } } as any)}>
+                {product.image ? <Image source={{ uri: product.image }} style={styles.productImage} /> : <View style={[styles.productImage, styles.productImagePlaceholder]}><AppIcon name="restaurant" size={28} color={COLORS.muted} /></View>}
                 <View style={styles.productInfo}>
                   <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
-                  <Text style={styles.productMerchant}>{product.merchant}</Text>
+                  <Text style={styles.productMerchant}>{product.storeName}</Text>
                   <View style={styles.priceRow}>
                     <Text style={styles.price}>{rupiah(product.price)}</Text>
                     <View style={styles.addButton}><AppIcon name="add" size={17} color="#fff" /></View>
@@ -160,7 +199,6 @@ const styles = StyleSheet.create({
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   location: { maxWidth: 240, fontSize: 12, fontWeight: '700', color: COLORS.text },
   bellWrap: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#FAFAFA', alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  badge: { position: 'absolute', top: 8, right: 8, width: 7, height: 7, borderRadius: 4, backgroundColor: COLORS.danger, borderWidth: 1, borderColor: '#fff' },
   searchBox: { marginTop: 14, height: 44, borderRadius: 13, backgroundColor: '#F4F4F4', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 13, gap: 8 },
   searchInput: { flex: 1, fontSize: 13, color: COLORS.text },
   hero: { marginTop: 16, minHeight: 130, borderRadius: 20, backgroundColor: '#FFE0C7', overflow: 'hidden', flexDirection: 'row', alignItems: 'center', padding: 16 },
@@ -179,7 +217,7 @@ const styles = StyleSheet.create({
   sectionBlock: { marginTop: 22 },
   horizontalList: { paddingTop: 11, paddingRight: 8, gap: 12 },
   merchantCard: { width: 145, backgroundColor: '#fff', borderRadius: 16, padding: 8, borderWidth: 1, borderColor: COLORS.border, ...SHADOW },
-  merchantImage: { width: '100%', height: 88, borderRadius: 12 },
+  merchantImage: { width: '100%', height: 88, borderRadius: 12, backgroundColor: COLORS.orange50, alignItems: 'center', justifyContent: 'center' },
   merchantName: { fontSize: 13, fontWeight: '800', color: COLORS.text, marginTop: 8 },
   merchantCity: { fontSize: 10, color: COLORS.secondaryText, marginTop: 2 },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 5 },
@@ -189,6 +227,7 @@ const styles = StyleSheet.create({
   productGrid: { marginTop: 11, flexDirection: 'row', flexWrap: 'wrap', gap: 11 },
   productCard: { width: '48.3%', borderRadius: 16, backgroundColor: '#fff', borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden', ...SHADOW },
   productImage: { width: '100%', height: 112 },
+  productImagePlaceholder: { backgroundColor: '#F4F4F4', alignItems: 'center', justifyContent: 'center' },
   productInfo: { padding: 10 },
   productName: { fontSize: 13, fontWeight: '800', color: COLORS.text },
   productMerchant: { fontSize: 10, color: COLORS.secondaryText, marginTop: 2 },

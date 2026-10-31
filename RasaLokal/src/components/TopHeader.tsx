@@ -1,17 +1,17 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppIcon } from '@/components/AppIcon';
-import { useRouter } from 'expo-router';
 import { COLORS } from '@/constants/theme';
+import { useSafeBack } from '@/hooks/useSafeBack';
 
 type Props = { title: string; back?: boolean; rightIcon?: string };
 
 export function TopHeader({ title, back = true, rightIcon }: Props) {
-  const router = useRouter();
+  const safeBack = useSafeBack('/(tabs)');
   return (
     <View style={styles.row}>
       <View style={styles.side}>
         {back ? (
-          <Pressable onPress={() => router.back()} style={styles.iconButton}>
+          <Pressable onPress={safeBack} style={styles.iconButton}>
             <AppIcon name="chevron-back" size={24} color={COLORS.text} />
           </Pressable>
         ) : null}

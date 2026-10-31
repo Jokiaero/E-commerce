@@ -1,12 +1,20 @@
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AppIcon } from '@/components/AppIcon';
 import { COLORS } from '@/constants/theme';
 import { IMAGES } from '@/constants/data';
+import { parseRecoveryLink, recoveryRedirectUrl } from '@/lib/passwordRecovery';
+import { useHydrated } from '@/hooks/useHydrated';
 
 export default function SplashScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const hydrated = useHydrated();
+  // Dashboard-generated reset emails may return to the configured Site URL (the home page).
+  if (hydrated && parseRecoveryLink(params).kind !== 'none') {
+    return <Redirect href={recoveryRedirectUrl(params)} />;
+  }
   return (
     <ImageBackground source={{ uri: IMAGES.productHero }} style={styles.background} resizeMode="cover">
       <View style={styles.overlay} />
