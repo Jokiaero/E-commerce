@@ -1,0 +1,12 @@
+{
+  "name": "rasalokal-admin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "start": "node scripts/dev-server.mjs --open",
+    "sync": "node scripts/sync-public-config.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check dist/app.js && node --check dist/api.js && node --check dist/utils.js && node --check scripts/dev-server.mjs"
+  }
+}
